@@ -43,7 +43,7 @@ const sections = [
     questions: [
 "I trust God even when I do not understand the situation.",
 "I am willing to release control when I know I should.",
-"I follow through on what I believe God is leading me to do.",
+{ text: "When I feel uncertain or out of control, I become anxious rather than trusting God.", reverseScored: true },
 "I choose obedience even when it costs me something.",
     ],
   },
@@ -126,6 +126,15 @@ const sections = [
   },
 ];
 
+function getQuestionText(question) {
+  return typeof question === "string" ? question : question.text;
+}
+
+function scoreQuestionAnswer(question, value) {
+  if (!value) return value;
+  return typeof question === "object" && question.reverseScored ? 11 - value : value;
+}
+
 const allQuestions = sections.flatMap((section, sectionIndex) =>
   section.questions.map((question, questionIndex) => ({
     id: `${sectionIndex}-${questionIndex}`,
@@ -134,7 +143,8 @@ const allQuestions = sections.flatMap((section, sectionIndex) =>
     theme: section.theme,
     sectionIndex,
     questionIndex,
-    question,
+    question: getQuestionText(question),
+    reverseScored: typeof question === "object" && question.reverseScored,
   }))
 );
 
@@ -167,7 +177,7 @@ function scoreAnswers(answers) {
   const domainValues = { spirit: [], soul: [], body: [] };
   allQuestions.forEach((item) => {
     if (answers[item.id]) {
-domainValues[item.key].push(answers[item.id]);
+domainValues[item.key].push(item.reverseScored ? 11 - answers[item.id] : answers[item.id]);
     }
   });
 
@@ -195,7 +205,7 @@ function scoreSubcategories(answers) {
 .filter((section) => section.domain === domain)
 .map((section) => {
   const values = section.questions
-    .map((_, questionIndex) => answers[`${section.sectionIndex}-${questionIndex}`])
+    .map((question, questionIndex) => scoreQuestionAnswer(question, answers[`${section.sectionIndex}-${questionIndex}`]))
     .filter(Boolean);
   const score = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
   return {
@@ -274,6 +284,41 @@ function createHistoryEntry(scores, subcategoryResults) {
   };
 }
 
+function normalizeResultRow(row) {
+  const spirit = Number(row.spirit_score ?? row.spirit ?? row.spiritAvg ?? 0);
+  const soul = Number(row.soul_score ?? row.soul ?? row.soulAvg ?? 0);
+  const body = Number(row.body_score ?? row.body ?? row.bodyAvg ?? 0);
+  const total = Number(row.alignment_score ?? row.total ?? row.overallScore ?? 0);
+  const timestamp = row.created_at || row.dateCompleted || row.timestamp || new Date().toISOString();
+  const scores = { spirit, soul, body, total, resistance: 10 - total };
+
+  return {
+    id: row.id,
+    dateCompleted: timestamp,
+    timestamp,
+    created_at: timestamp,
+    overallScore: total,
+    total,
+    spiritAvg: spirit,
+    soulAvg: soul,
+    bodyAvg: body,
+    spirit,
+    soul,
+    body,
+    lowestCategory: lowestCategoryFor(scores),
+    alignmentLevel: alignmentLevelFor(total),
+    resistanceLevel: resistanceLevelFor(scores.resistance),
+  };
+}
+
+function sortHistoryNewestFirst(entries) {
+  return [...entries].sort(
+    (a, b) =>
+      new Date(b.created_at || b.dateCompleted || b.timestamp) -
+      new Date(a.created_at || a.dateCompleted || a.timestamp)
+  );
+}
+
 function ellipsePath({ cx = 240, cy = 240, rx, ry, wobble = 0, points = 180 }) {
   const path = [];
 
@@ -330,33 +375,33 @@ aria-label="Personal Etytomic Structure visual"
 <svg className="relative h-full w-full overflow-visible" viewBox={compact ? "0 0 480 480" : "0 0 640 480"} role="img">
   <defs>
     <linearGradient id="structureWarmBg" x1="0%" x2="100%" y1="0%" y2="100%">
-      <stop offset="0%" stopColor="#fffdf6" />
-      <stop offset="48%" stopColor="#fff6df" />
-      <stop offset="100%" stopColor="#f4dfb6" />
+      <stop offset="0%" stopColor="#FFFFFF" />
+      <stop offset="55%" stopColor="#F9FAFB" />
+      <stop offset="100%" stopColor="#E5E7EB" />
     </linearGradient>
     <radialGradient id="minimalCenterGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stopColor="#fffef8" />
-      <stop offset="22%" stopColor="#fff0bd" stopOpacity="0.95" />
-      <stop offset="58%" stopColor="#d8a64a" stopOpacity="0.2" />
-      <stop offset="100%" stopColor="#d8a64a" stopOpacity="0" />
+      <stop offset="0%" stopColor="#FFFFFF" />
+      <stop offset="28%" stopColor="#F3F4F6" stopOpacity="0.92" />
+      <stop offset="62%" stopColor="#E6C97A" stopOpacity="0.16" />
+      <stop offset="100%" stopColor="#E6C97A" stopOpacity="0" />
     </radialGradient>
     <linearGradient id="crossHorizontal" x1="0%" x2="100%">
-      <stop offset="0%" stopColor="#fff3c4" stopOpacity="0" />
-      <stop offset="42%" stopColor="#ffe59b" stopOpacity="0.72" />
-      <stop offset="50%" stopColor="#fffdf4" stopOpacity="1" />
-      <stop offset="58%" stopColor="#ffe59b" stopOpacity="0.72" />
-      <stop offset="100%" stopColor="#fff3c4" stopOpacity="0" />
+      <stop offset="0%" stopColor="#E6C97A" stopOpacity="0" />
+      <stop offset="42%" stopColor="#E6C97A" stopOpacity="0.68" />
+      <stop offset="50%" stopColor="#FFFFFF" stopOpacity="1" />
+      <stop offset="58%" stopColor="#E6C97A" stopOpacity="0.68" />
+      <stop offset="100%" stopColor="#E6C97A" stopOpacity="0" />
     </linearGradient>
     <linearGradient id="crossVertical" x1="0%" x2="0%" y1="0%" y2="100%">
-      <stop offset="0%" stopColor="#fff3c4" stopOpacity="0" />
-      <stop offset="42%" stopColor="#ffe59b" stopOpacity="0.72" />
-      <stop offset="50%" stopColor="#fffdf4" stopOpacity="1" />
-      <stop offset="58%" stopColor="#ffe59b" stopOpacity="0.72" />
-      <stop offset="100%" stopColor="#fff3c4" stopOpacity="0" />
+      <stop offset="0%" stopColor="#E6C97A" stopOpacity="0" />
+      <stop offset="42%" stopColor="#E6C97A" stopOpacity="0.68" />
+      <stop offset="50%" stopColor="#FFFFFF" stopOpacity="1" />
+      <stop offset="58%" stopColor="#E6C97A" stopOpacity="0.68" />
+      <stop offset="100%" stopColor="#E6C97A" stopOpacity="0" />
     </linearGradient>
     <radialGradient id="minimalField" cx="50%" cy="50%" r="58%">
-      <stop offset="0%" stopColor="#fff8df" stopOpacity="0.26" />
-      <stop offset="48%" stopColor="#f8ead2" stopOpacity="0.12" />
+      <stop offset="0%" stopColor="#F9FAFB" stopOpacity="0.24" />
+      <stop offset="48%" stopColor="#E5E7EB" stopOpacity="0.12" />
       <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
     </radialGradient>
     <filter id="minimalBlur" x="-50%" y="-50%" width="200%" height="200%">
@@ -397,20 +442,20 @@ aria-label="Personal Etytomic Structure visual"
     <rect className="beam-halo" x={centerX - 12} y={centerY - 196} width="24" height="392" rx="12" fill="url(#crossVertical)" />
     <rect className="axis-energy" x={centerX - 178} y={centerY - 2.5} width="356" height="5" rx="2.5" fill="url(#crossHorizontal)" />
     <rect className="axis-energy vertical" x={centerX - 2.5} y={centerY - 178} width="5" height="356" rx="2.5" fill="url(#crossVertical)" />
-    <rect className="beam-core" x={centerX - 118} y={centerY - 4} width="236" height="8" rx="4" fill="#fff8df" />
-    <rect className="beam-core" x={centerX - 4} y={centerY - 118} width="8" height="236" rx="4" fill="#fff8df" />
+    <rect className="beam-core" x={centerX - 118} y={centerY - 4} width="236" height="8" rx="4" fill="#FFFFFF" />
+    <rect className="beam-core" x={centerX - 4} y={centerY - 118} width="8" height="236" rx="4" fill="#FFFFFF" />
   </g>
 
   <g className="light-streams">
-    <circle className="light-particle particle-right" cx={centerX + 18} cy={centerY} r="2.8" fill="#fff1b6" />
-    <circle className="light-particle particle-left" cx={centerX - 18} cy={centerY} r="2.4" fill="#fff1b6" />
-    <circle className="light-particle particle-up" cx={centerX} cy={centerY - 18} r="2.5" fill="#fff1b6" />
-    <circle className="light-particle particle-down" cx={centerX} cy={centerY + 18} r="2.2" fill="#fff1b6" />
+    <circle className="light-particle particle-right" cx={centerX + 18} cy={centerY} r="2.8" fill="#E6C97A" />
+    <circle className="light-particle particle-left" cx={centerX - 18} cy={centerY} r="2.4" fill="#E6C97A" />
+    <circle className="light-particle particle-up" cx={centerX} cy={centerY - 18} r="2.5" fill="#E6C97A" />
+    <circle className="light-particle particle-down" cx={centerX} cy={centerY + 18} r="2.2" fill="#E6C97A" />
   </g>
 
   <circle cx={centerX} cy={centerY} r={42 + normalized * 12} fill="url(#minimalCenterGlow)" opacity={centerStrength * 0.62} filter="url(#minimalBlur)" />
-  <circle className="cross-source" cx={centerX} cy={centerY} r={16 + normalized * 5} fill="#fffdf6" opacity={0.9 + normalized * 0.08} />
-  <circle cx={centerX} cy={centerY} r={5 + normalized * 2} fill="#d4a84f" opacity={0.78 + normalized * 0.18} />
+  <circle className="cross-source" cx={centerX} cy={centerY} r={16 + normalized * 5} fill="#FFFFFF" opacity={0.9 + normalized * 0.08} />
+  <circle cx={centerX} cy={centerY} r={5 + normalized * 2} fill="#E6C97A" opacity={0.78 + normalized * 0.18} />
 </svg>
     </section>
   );
@@ -421,20 +466,25 @@ function LogoMark() {
     <svg className="logo-mark" viewBox="0 0 72 72" role="img" aria-label="Etytomic Alignment symbol">
       <defs>
         <radialGradient id="logoLight" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#fffef7" />
-          <stop offset="34%" stopColor="#edd08c" stopOpacity="0.38" />
-          <stop offset="100%" stopColor="#c98521" stopOpacity="0" />
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="30%" stopColor="#F3F4F6" stopOpacity="0.42" />
+          <stop offset="58%" stopColor="#E6C97A" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#E6C97A" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <circle className="logo-light-field" cx="36" cy="36" r="22" fill="url(#logoLight)" />
-      <ellipse className="logo-orbit logo-orbit-body" cx="36" cy="36" rx="25" ry="7.5" />
-      <ellipse className="logo-orbit logo-orbit-spirit" cx="36" cy="36" rx="9.5" ry="27" transform="rotate(-35 36 36)" />
-      <ellipse className="logo-orbit logo-orbit-soul" cx="36" cy="36" rx="9.5" ry="27" transform="rotate(35 36 36)" />
-      <g className="logo-cross">
-        <path d="M36 27.5v17" />
-        <path d="M27.5 36h17" />
+      <circle className="logo-light-field" cx="36" cy="36" r="20" fill="url(#logoLight)" />
+      <ellipse className="logo-orbit logo-orbit-body" cx="36" cy="36" rx="25.5" ry="7.25" opacity="0.58" strokeWidth="1.1" />
+      <ellipse className="logo-orbit logo-orbit-spirit" cx="36" cy="36" rx="9.25" ry="27.5" transform="rotate(-34 36 36)" opacity="0.58" strokeWidth="1.1" />
+      <ellipse className="logo-orbit logo-orbit-soul" cx="36" cy="36" rx="9.25" ry="27.5" transform="rotate(34 36 36)" opacity="0.54" strokeWidth="1.1" />
+      <g
+        className="logo-cross"
+        style={{
+          filter: "drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 3px rgba(230,201,122,0.34))",
+        }}
+      >
+        <path d="M36 18.5v35" style={{ stroke: "#F8E7B0", strokeWidth: 3.55, strokeLinecap: "round" }} />
+        <path d="M24 32.75h24" style={{ stroke: "#F8E7B0", strokeWidth: 3.55, strokeLinecap: "round" }} />
       </g>
-      <circle className="logo-center" cx="36" cy="36" r="2.45" />
     </svg>
   );
 }
@@ -573,8 +623,8 @@ function LegalPage({ type }) {
   return (
     <main className="mx-auto max-w-4xl px-5 pb-12 pt-4 sm:px-8">
 <section className="glass-panel rounded-md p-6 sm:p-8">
-  <h1 className="serif text-3xl font-semibold text-[#302a21] sm:text-4xl">{page.title}</h1>
-  <div className="mt-6 space-y-4 text-base leading-8 text-[#5c513f]">
+  <h1 className="serif text-3xl font-semibold text-[#1F2937] sm:text-4xl">{page.title}</h1>
+  <div className="mt-6 space-y-4 text-base leading-8 text-[#374151]">
     {page.intro?.map((line) => <p key={line}>{line}</p>)}
     {page.list && (
       <ul className="list-disc space-y-2 pl-5">
@@ -583,7 +633,7 @@ function LegalPage({ type }) {
     )}
     {page.sections.map((section, index) => (
       <div key={section.title || index} className="pt-2">
-        {section.title && <h2 className="text-base font-semibold text-[#3c3428]">{section.title}</h2>}
+        {section.title && <h2 className="text-base font-semibold text-[#1F2937]">{section.title}</h2>}
         {section.body && <p className={section.title ? "mt-1" : ""}>{section.body}</p>}
         {section.list && (
           <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -608,9 +658,9 @@ function Footer({ setPage }) {
 
   return (
     <footer className="mx-auto w-full max-w-6xl px-5 pb-8 pt-2 sm:px-8">
-<div className="flex flex-wrap gap-4 border-t border-[#d9c8a8] pt-5 text-sm text-[#6c5d46]">
+<div className="flex flex-wrap gap-4 border-t border-[#E5E7EB] pt-5 text-sm text-[#6B7280]">
   {links.map(([key, label]) => (
-    <button key={key} onClick={() => setPage(key)} className="font-medium hover:text-[#9f7026]">
+    <button key={key} onClick={() => setPage(key)} className="font-medium hover:text-[#3B82F6]">
       {label}
     </button>
   ))}
@@ -621,13 +671,13 @@ function Footer({ setPage }) {
 
 function SignUpAgreement({ setPage }) {
   return (
-    <p className="text-xs leading-5 text-[#6c604d]">
+    <p className="text-xs leading-5 text-[#6B7280]">
 By creating an account, you agree to our{" "}
-<button onClick={() => setPage("terms")} className="font-semibold text-[#8d621d] underline">
+<button onClick={() => setPage("terms")} className="font-semibold text-[#3B82F6] underline">
   Terms of Use
 </button>{" "}
 and{" "}
-<button onClick={() => setPage("privacy")} className="font-semibold text-[#8d621d] underline">
+<button onClick={() => setPage("privacy")} className="font-semibold text-[#3B82F6] underline">
   Privacy Policy
 </button>
 .
@@ -708,7 +758,7 @@ function WelcomePage({ setPage, onAuthSuccess }) {
   }
 
   const inputClass =
-    "mt-2 w-full rounded-md border border-[#d7cab2] bg-white/80 px-3 py-2 text-sm text-[#3c3428] shadow-sm outline-none transition focus:border-[#b8832d] focus:ring-2 focus:ring-[#ead8b3]";
+    "mt-2 w-full rounded-md border border-[#E5E7EB] bg-white/80 px-3 py-2 text-sm text-[#1F2937] shadow-sm outline-none transition focus:border-[#3B82F6] focus:ring-2 focus:ring-[#BFDBFE]";
 
   return (
     <main className="mx-auto max-w-6xl px-5 pb-12 pt-8 sm:px-8">
@@ -716,13 +766,13 @@ function WelcomePage({ setPage, onAuthSuccess }) {
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div>
             <p className="eyebrow mb-4">Welcome</p>
-            <h1 className="serif text-4xl font-semibold tracking-normal text-[#2f2a21] sm:text-5xl">
+            <h1 className="serif text-4xl font-semibold tracking-normal text-[#1F2937] sm:text-5xl">
               Etytomic Alignment
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-8 text-[#5c513f]">
+            <p className="mt-5 max-w-xl text-lg leading-8 text-[#374151]">
               Create an account or log in to take the assessment, save your results, and return for monthly check-ins over time.
             </p>
-            <div className="soft-panel mt-8 rounded-md p-5 text-sm leading-7 text-[#6c604d]">
+            <div className="soft-panel mt-8 rounded-md p-5 text-sm leading-7 text-[#6B7280]">
               <p>This is a personal reflection tool for noticing alignment, resistance, and growth across spirit, soul, and body.</p>
               <p className="mt-3">Your account keeps your results connected to you as the app grows beyond this prototype.</p>
             </div>
@@ -730,10 +780,10 @@ function WelcomePage({ setPage, onAuthSuccess }) {
 
           <div className="space-y-6">
             {accountCreated && (
-              <div className="rounded-md border border-[#c99b45] bg-[#fff9ed] p-6 shadow-sm">
+              <div className="rounded-md border border-[#3B82F6] bg-[#F9FAFB] p-6 shadow-sm">
                 <p className="eyebrow mb-3">Confirmation sent</p>
-                <h2 className="serif text-3xl font-semibold text-[#302a21]">Account created!</h2>
-                <div className="mt-3 space-y-3 text-sm leading-7 text-[#5c513f]">
+                <h2 className="serif text-3xl font-semibold text-[#1F2937]">Account created!</h2>
+                <div className="mt-3 space-y-3 text-sm leading-7 text-[#374151]">
                   <p>Please check your email to confirm your account before logging in.</p>
                   <p>
                     We sent a confirmation link to the email address you entered. After you confirm,
@@ -745,8 +795,8 @@ function WelcomePage({ setPage, onAuthSuccess }) {
 
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             <form onSubmit={handleCreateAccount} className="soft-panel rounded-md p-5">
-              <h2 className="serif text-2xl font-semibold text-[#302a21]">Create Account</h2>
-              <label className="mt-5 block text-sm font-semibold text-[#3c3428]">
+              <h2 className="serif text-2xl font-semibold text-[#1F2937]">Create Account</h2>
+              <label className="mt-5 block text-sm font-semibold text-[#1F2937]">
                 Email
                 <input
                   type="email"
@@ -757,7 +807,7 @@ function WelcomePage({ setPage, onAuthSuccess }) {
                   className={inputClass}
                 />
               </label>
-              <label className="mt-4 block text-sm font-semibold text-[#3c3428]">
+              <label className="mt-4 block text-sm font-semibold text-[#1F2937]">
                 Password
                 <input
                   type="password"
@@ -769,8 +819,8 @@ function WelcomePage({ setPage, onAuthSuccess }) {
                   className={inputClass}
                 />
               </label>
-              <label className="mt-4 block text-sm font-semibold text-[#3c3428]">
-                Display name <span className="font-normal text-[#7b6b50]">(optional)</span>
+              <label className="mt-4 block text-sm font-semibold text-[#1F2937]">
+                Display name <span className="font-normal text-[#6B7280]">(optional)</span>
                 <input
                   type="text"
                   autoComplete="nickname"
@@ -792,8 +842,8 @@ function WelcomePage({ setPage, onAuthSuccess }) {
             </form>
 
             <form onSubmit={handleLogin} className="soft-panel rounded-md p-5">
-              <h2 className="serif text-2xl font-semibold text-[#302a21]">Log In</h2>
-              <label className="mt-5 block text-sm font-semibold text-[#3c3428]">
+              <h2 className="serif text-2xl font-semibold text-[#1F2937]">Log In</h2>
+              <label className="mt-5 block text-sm font-semibold text-[#1F2937]">
                 Email
                 <input
                   type="email"
@@ -804,7 +854,7 @@ function WelcomePage({ setPage, onAuthSuccess }) {
                   className={inputClass}
                 />
               </label>
-              <label className="mt-4 block text-sm font-semibold text-[#3c3428]">
+              <label className="mt-4 block text-sm font-semibold text-[#1F2937]">
                 Password
                 <input
                   type="password"
@@ -828,7 +878,7 @@ function WelcomePage({ setPage, onAuthSuccess }) {
         </div>
 
         {error && (
-          <div className={`mt-6 rounded-md border p-4 text-sm leading-6 ${error ? "border-[#d8a6a1] bg-[#fff6f4] text-[#8a3d34]" : "border-[#d9c8a8] bg-white/65 text-[#5c513f]"}`}>
+          <div className={`mt-6 rounded-md border p-4 text-sm leading-6 ${error ? "border-[#d8a6a1] bg-[#F9FAFB] text-[#8a3d34]" : "border-[#E5E7EB] bg-white/65 text-[#374151]"}`}>
             {error}
           </div>
         )}
@@ -868,15 +918,15 @@ function AboutPage({ setPage }) {
         <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:items-center">
           <div>
             <p className="eyebrow mb-4">About</p>
-            <h1 className="serif max-w-3xl text-4xl font-semibold tracking-normal text-[#2f2a21] sm:text-5xl">
+            <h1 className="serif max-w-3xl text-4xl font-semibold tracking-normal text-[#1F2937] sm:text-5xl">
               Alignment begins at the center.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#6a5b45]">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[#374151]">
               Spirit, soul, and body ordered around God.
             </p>
           </div>
-          <div className="soft-panel rounded-md p-5 text-sm leading-6 text-[#6c604d]">
-            <p className="font-semibold text-[#302a21]">Acts 17:28</p>
+          <div className="soft-panel rounded-md p-5 text-sm leading-6 text-[#6B7280]">
+            <p className="font-semibold text-[#1F2937]">Acts 17:28</p>
             <p className="mt-2">“In Him we live and move and have our being.”</p>
           </div>
         </div>
@@ -884,7 +934,7 @@ function AboutPage({ setPage }) {
           <button onClick={() => setPage("assessment")} className="gold-button rounded-md px-5 py-3 text-sm font-semibold text-white">
             Begin Assessment
           </button>
-          <button onClick={() => setPage("checkin")} className="rounded-md border border-[#d6c8ad] bg-white/70 px-5 py-3 text-sm font-semibold text-[#705a34] shadow-sm hover:bg-white">
+          <button onClick={() => setPage("checkin")} className="rounded-md border border-[#E5E7EB] bg-white/70 px-5 py-3 text-sm font-semibold text-[#374151] shadow-sm hover:bg-white">
             Check-In Rhythm
           </button>
         </div>
@@ -893,9 +943,9 @@ function AboutPage({ setPage }) {
       <section className="mt-6 grid gap-4 lg:grid-cols-3">
         {overviewCards.map((card) => (
           <article key={card.title} className="soft-panel rounded-md p-5 transition hover:-translate-y-0.5">
-            <h2 className="serif text-xl font-semibold text-[#302a21]">{card.title}</h2>
-            <p className="mt-3 text-sm leading-6 text-[#5c513f]">{card.body}</p>
-            <p className="mt-4 rounded-md bg-white/55 p-3 text-xs font-semibold leading-5 text-[#8d621d]">{card.note}</p>
+            <h2 className="serif text-xl font-semibold text-[#1F2937]">{card.title}</h2>
+            <p className="mt-3 text-sm leading-6 text-[#374151]">{card.body}</p>
+            <p className="mt-4 rounded-md bg-white/55 p-3 text-xs font-semibold leading-5 text-[#3B82F6]">{card.note}</p>
           </article>
         ))}
       </section>
@@ -903,15 +953,15 @@ function AboutPage({ setPage }) {
       <section className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="glass-panel rounded-md p-5 sm:p-6">
           <p className="eyebrow mb-3">Structure</p>
-          <h2 className="serif text-2xl font-semibold text-[#302a21]">Spirit, soul, body</h2>
+          <h2 className="serif text-2xl font-semibold text-[#1F2937]">Spirit, soul, body</h2>
           <div className="mt-5 grid gap-3">
             {dimensions.map(([name, title, body]) => (
               <div key={name} className="soft-panel rounded-md p-4">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-semibold text-[#302a21]">{name}</h3>
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9f7026]">{title}</span>
+                  <h3 className="font-semibold text-[#1F2937]">{name}</h3>
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#3B82F6]">{title}</span>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[#5c513f]">{body}</p>
+                <p className="mt-2 text-sm leading-6 text-[#374151]">{body}</p>
               </div>
             ))}
           </div>
@@ -934,8 +984,8 @@ function ScoreButtons({ value, onChange }) {
     onClick={() => onChange(score)}
     className={`h-10 rounded-md border text-sm font-semibold transition ${
       value === score
-        ? "border-[#9f7026] bg-[#9f7026] text-white shadow-md shadow-[#9f7026]/20"
-        : "border-[#d9ccb5] bg-white/75 text-[#665842] shadow-sm hover:border-[#b98735] hover:bg-[#fffaf0]"
+        ? "border-[#3B82F6] bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/20"
+        : "border-[#E5E7EB] bg-white/75 text-[#374151] shadow-sm hover:border-[#3B82F6] hover:bg-[#F9FAFB]"
     }`}
   >
     {score}
@@ -973,7 +1023,9 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
     if (isLast) {
       if (!allSectionsComplete) return;
       setAssessmentComplete(true);
-      onCompleteAssessment();
+      Promise.resolve(onCompleteAssessment()).catch((error) => {
+        console.error("Unable to save completed assessment.", error);
+      });
       setPage("results");
       return;
     }
@@ -989,8 +1041,8 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
       <main className="page-shell">
         <section className="glass-panel rounded-md p-6 sm:p-8">
           <p className="eyebrow mb-4">Assessment</p>
-          <h1 className="serif text-4xl font-semibold text-[#302a21] sm:text-5xl">Assessment complete.</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[#5c513f]">Your answers are locked and your full results are ready.</p>
+          <h1 className="serif text-4xl font-semibold text-[#1F2937] sm:text-5xl">Assessment complete.</h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[#374151]">Your answers are locked and your full results are ready.</p>
           <button onClick={() => setPage("results")} className="gold-button mt-8 rounded-md px-5 py-3 text-sm font-semibold text-white">
             View Full Results
           </button>
@@ -1006,8 +1058,8 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
           <p className="eyebrow mb-4">Etytomic Alignment Assessment</p>
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>
-              <h1 className="serif text-4xl font-semibold text-[#302a21] sm:text-5xl">Before you begin</h1>
-              <p className="mt-4 max-w-xl text-base leading-7 text-[#5c513f]">
+              <h1 className="serif text-4xl font-semibold text-[#1F2937] sm:text-5xl">Before you begin</h1>
+              <p className="mt-4 max-w-xl text-base leading-7 text-[#374151]">
                 This is a reflection tool for noticing alignment and resistance. Answer honestly based on where you are today.
               </p>
             </div>
@@ -1018,7 +1070,7 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
                 "Not a replacement for guidance, counseling, or support.",
                 "Growth begins with clarity.",
               ].map((line) => (
-                <div key={line} className="soft-panel rounded-md p-4 text-sm font-medium leading-6 text-[#5c513f]">{line}</div>
+                <div key={line} className="soft-panel rounded-md p-4 text-sm font-medium leading-6 text-[#374151]">{line}</div>
               ))}
             </div>
           </div>
@@ -1026,7 +1078,7 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
             <button onClick={() => setHasStarted(true)} className="gold-button rounded-md px-5 py-3 text-sm font-semibold text-white">
               Start Alignment Assessment
             </button>
-            <button onClick={() => setPage("about")} className="rounded-md border border-[#d7cab2] bg-white/70 px-5 py-3 text-sm font-semibold text-[#705f42] shadow-sm">
+            <button onClick={() => setPage("about")} className="rounded-md border border-[#E5E7EB] bg-white/70 px-5 py-3 text-sm font-semibold text-[#374151] shadow-sm">
               Review Foundation
             </button>
           </div>
@@ -1038,14 +1090,14 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
   return (
     <main className="page-shell">
       <section className="glass-panel rounded-md p-5 sm:p-6">
-        <div className="mb-4 flex items-center justify-between gap-4 text-sm text-[#76684f]">
+        <div className="mb-4 flex items-center justify-between gap-4 text-sm text-[#6B7280]">
           <span>Section {sectionIndex + 1} of {sections.length}</span>
           <span>{answeredCount} of {allQuestions.length} scored</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-[#e6dac3]">
-          <div className="h-full rounded-full bg-[#b9832b] transition-all duration-500" style={{ width: `${sectionProgress}%` }} />
+        <div className="h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
+          <div className="h-full rounded-full bg-[#3B82F6] transition-all duration-500" style={{ width: `${sectionProgress}%` }} />
         </div>
-        <div className="mt-3 text-xs text-[#8a7a5f]">
+        <div className="mt-3 text-xs text-[#6B7280]">
           {allSectionsComplete ? "Assessment complete" : `${completedSections} of ${sections.length} sections completed`}
         </div>
       </section>
@@ -1053,15 +1105,15 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
       <section key={sectionIndex} className="assessment-section glass-panel mt-6 rounded-md p-6 sm:p-8">
         <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#9f7026]">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3B82F6]">
               <span>{section.domain}</span>
               <span>•</span>
               <span>{domainMeta[section.key].weight}</span>
             </div>
-            <h1 className="serif mt-3 text-3xl font-semibold leading-tight text-[#302a21] sm:text-4xl">{section.theme}</h1>
-            <p className="mt-3 text-sm leading-6 text-[#6c604d]">Score each statement from 1 to 10 before continuing.</p>
+            <h1 className="serif mt-3 text-3xl font-semibold leading-tight text-[#1F2937] sm:text-4xl">{section.theme}</h1>
+            <p className="mt-3 text-sm leading-6 text-[#6B7280]">Score each statement from 1 to 10 before continuing.</p>
           </div>
-          <div className="soft-panel rounded-md px-4 py-3 text-sm font-semibold text-[#705f42]">
+          <div className="soft-panel rounded-md px-4 py-3 text-sm font-semibold text-[#374151]">
             {completeInSection} of {section.questions.length} answered
           </div>
         </div>
@@ -1072,10 +1124,10 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
             return (
               <div key={id} className="soft-panel rounded-md p-4 sm:p-5">
                 <div className="mb-4 flex gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#fff4d5] text-sm font-semibold text-[#9f7026] shadow-sm">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F9FAFB] text-sm font-semibold text-[#3B82F6] shadow-sm">
                     {questionIndex + 1}
                   </span>
-                  <p className="text-base font-medium leading-7 text-[#3d3528]">{question}</p>
+                  <p className="text-base font-medium leading-7 text-[#1F2937]">{getQuestionText(question)}</p>
                 </div>
                 <ScoreButtons value={answers[id]} onChange={(value) => updateAnswer(questionIndex, value)} />
               </div>
@@ -1084,7 +1136,7 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <button onClick={goBack} disabled={sectionIndex === 0} className="rounded-md border border-[#d7cab2] bg-white/70 px-5 py-3 text-sm font-semibold text-[#705f42] shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <button onClick={goBack} disabled={sectionIndex === 0} className="rounded-md border border-[#E5E7EB] bg-white/70 px-5 py-3 text-sm font-semibold text-[#374151] shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
             Back
           </button>
           {canContinue ? (
@@ -1092,7 +1144,7 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
               {isLast ? "View Full Results" : "Continue"}
             </button>
           ) : (
-            <div className="rounded-md border border-[#e1d6c0] bg-white/60 px-4 py-3 text-sm font-medium text-[#7b6c54]">
+            <div className="rounded-md border border-[#E5E7EB] bg-white/60 px-4 py-3 text-sm font-medium text-[#6B7280]">
               Answer all questions in this section to continue.
             </div>
           )}
@@ -1106,14 +1158,14 @@ function ResultMetric({ label, value, detail }) {
   return (
     <div className="soft-panel rounded-md p-4">
 <div className="flex items-baseline justify-between gap-3">
-  <div className="text-sm font-semibold text-[#3c3428]">{label}</div>
-  <div className="text-2xl font-semibold tabular-nums text-[#8d621d]">{value.toFixed(1)}</div>
+  <div className="text-sm font-semibold text-[#1F2937]">{label}</div>
+  <div className="text-2xl font-semibold tabular-nums text-[#3B82F6]">{value.toFixed(1)}</div>
 </div>
-<div className="mt-2 h-2 overflow-hidden rounded-full bg-[#eadfca]">
-  <div className="h-full rounded-full bg-[#b9832b]" style={{ width: `${value * 10}%` }} />
+<div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
+  <div className="h-full rounded-full bg-[#3B82F6]" style={{ width: `${value * 10}%` }} />
 </div>
-<div className="mt-3 text-xs leading-5 text-[#6c604d]">{detail}</div>
-<div className="mt-1 text-xs font-medium text-[#7e6d52]">Resistance {(10 - value).toFixed(1)}</div>
+<div className="mt-3 text-xs leading-5 text-[#6B7280]">{detail}</div>
+<div className="mt-1 text-xs font-medium text-[#6B7280]">Resistance {(10 - value).toFixed(1)}</div>
     </div>
   );
 }
@@ -1123,13 +1175,17 @@ function CategoryOverviewCard({ name, value, detail }) {
     <div className="soft-panel rounded-md p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="serif text-xl font-semibold text-[#302a21]">{name}</h3>
-          <p className="mt-1 text-xs leading-5 text-[#6c604d]">{detail}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Category</p>
+          <h3 className="serif text-xl font-semibold text-[#1F2937]">{name}</h3>
+          <p className="mt-1 text-xs leading-5 text-[#6B7280]">{detail}</p>
         </div>
-        <div className="text-3xl font-semibold tabular-nums text-[#8d621d]">{formatScore(value)}</div>
+        <div className="text-right">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Score</div>
+          <div className="text-3xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(value)}</div>
+        </div>
       </div>
-      <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#eadfca]">
-        <div className="h-full rounded-full bg-[#b9832b]" style={{ width: `${value * 10}%` }} />
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
+        <div className="h-full rounded-full bg-[#3B82F6]" style={{ width: `${value * 10}%` }} />
       </div>
     </div>
   );
@@ -1138,26 +1194,27 @@ function CategoryOverviewCard({ name, value, detail }) {
 function SubcategoryResults({ results }) {
   return (
     <section className="glass-panel rounded-md p-5 sm:p-6">
-<h2 className="serif text-2xl font-semibold text-[#302a21]">Where Growth Is Needed Most</h2>
-<p className="mt-3 text-sm leading-6 text-[#6c604d]">
-  These sub-scores show which areas are creating the most alignment and where resistance may be strongest.
-</p>
+<h2 className="serif text-2xl font-semibold text-[#1F2937]">Where Growth Is Needed Most</h2>
+<div className="mt-3 grid gap-2 text-sm leading-6 text-[#6B7280]">
+  <p>These sub-scores show which areas are creating the most alignment.</p>
+  <p>They also show where resistance may be strongest.</p>
+</div>
 
 <div className="mt-5 grid gap-4">
   {results.groups.map((group) => (
     <div key={group.domain} className="soft-panel rounded-md p-4">
-      <h3 className="border-b border-[#eadfcb] pb-3 text-base font-semibold text-[#3c3428]">
+      <h3 className="border-b border-[#E5E7EB] pb-3 text-base font-semibold text-[#1F2937]">
         <span>{group.domain} (Avg: {formatScore(group.score)})</span>
       </h3>
       <div className="mt-3 grid gap-3">
         {group.items.map((item) => (
           <div key={item.name}>
             <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="text-[#5c513f]">{item.name}</span>
-              <span className="font-semibold tabular-nums text-[#8d621d]">{formatScore(item.score)}</span>
+              <span className="text-[#374151]">{item.name}</span>
+              <span className="font-semibold tabular-nums text-[#3B82F6]">{formatScore(item.score)}</span>
             </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#eadfca]">
-              <div className="h-full rounded-full bg-[#b9832b]" style={{ width: `${item.score * 10}%` }} />
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
+              <div className="h-full rounded-full bg-[#3B82F6]" style={{ width: `${item.score * 10}%` }} />
             </div>
           </div>
         ))}
@@ -1166,14 +1223,18 @@ function SubcategoryResults({ results }) {
   ))}
 </div>
 
-<div className="mt-5 rounded-md border border-[#eadfcb] bg-white/60 p-4 text-sm leading-6 text-[#5c513f]">
-  <p>
-    Your strongest area right now: <span className="font-semibold text-[#3c3428]">{results.highest.name}</span>
+<div className="mt-5 grid gap-3 text-sm leading-6 text-[#374151] sm:grid-cols-2">
+  <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4">
+    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Strongest</p>
+    <p className="mt-2 text-base font-semibold text-[#1F2937]">{results.highest.name}</p>
+  </div>
+  <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4">
+    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Growth area</p>
+    <p className="mt-2 text-base font-semibold text-[#1F2937]">{results.lowest.name}</p>
+  </div>
+  <p className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#6B7280] sm:col-span-2">
+    This area may be affecting clarity, stability, or alignment.
   </p>
-  <p className="mt-2">
-    Your greatest growth area right now: <span className="font-semibold text-[#3c3428]">{results.lowest.name}</span>
-  </p>
-  <p className="mt-3 text-[#6c604d]">This area may be affecting clarity, stability, or alignment.</p>
 </div>
     </section>
   );
@@ -1193,12 +1254,17 @@ function trendLabel(value) {
   return "→ Steady";
 }
 
+function sentenceLines(text) {
+  return text.match(/[^.!?]+[.!?]+/g)?.map((line) => line.trim()) || [text];
+}
+
 function calculateCheckInStreak(history) {
   if (!history.length) return 0;
+  const chronological = sortHistoryNewestFirst(history).reverse();
   let streak = 1;
-  for (let index = history.length - 1; index > 0; index -= 1) {
-    const currentDate = new Date(history[index].dateCompleted || history[index].timestamp);
-    const previousDate = new Date(history[index - 1].dateCompleted || history[index - 1].timestamp);
+  for (let index = chronological.length - 1; index > 0; index -= 1) {
+    const currentDate = new Date(chronological[index].created_at || chronological[index].dateCompleted || chronological[index].timestamp);
+    const previousDate = new Date(chronological[index - 1].created_at || chronological[index - 1].dateCompleted || chronological[index - 1].timestamp);
     if (daysBetween(previousDate, currentDate) <= 45) {
 streak += 1;
     } else {
@@ -1228,13 +1294,14 @@ function daysBetween(start, end) {
 }
 
 function ProgressOverTime({ history, onClearHistory, onStartNewCheckIn }) {
-  const current = history[history.length - 1];
-  const previous = history[history.length - 2];
-  const first = history[0];
+  const orderedHistory = sortHistoryNewestFirst(history);
+  const current = orderedHistory[0];
+  const previous = orderedHistory[1];
+  const first = orderedHistory[orderedHistory.length - 1];
   const currentTotal = current?.overallScore ?? current?.total ?? 0;
   const previousTotal = previous ? previous.overallScore ?? previous.total : 0;
   const firstTotal = first?.overallScore ?? first?.total ?? 0;
-  const completedDate = current ? new Date(current.dateCompleted) : null;
+  const completedDate = current ? new Date(current.created_at || current.dateCompleted || current.timestamp) : null;
   const nextCheckInDate = completedDate ? addDays(completedDate, 30) : null;
   const daysSinceLastCheckIn = completedDate ? daysBetween(completedDate, new Date()) : 0;
   const checkInStreak = calculateCheckInStreak(history);
@@ -1277,20 +1344,28 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
     <section className="glass-panel mt-6 rounded-md p-5 sm:p-6">
 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
   <div>
-    <h2 className="serif text-2xl font-semibold text-[#302a21]">Your Progress Over Time</h2>
+    <h2 className="serif text-2xl font-semibold text-[#1F2937]">Your Progress Over Time</h2>
     {current && (
       <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-        <div className="rounded-md border border-[#eadfcb] bg-white/60 p-4 text-[#5c513f]">
-          Next suggested check-in: <span className="font-semibold text-[#8d621d]">{formatDisplayDate(nextCheckInDate)}</span>
+        <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
+          Next suggested check-in: <span className="font-semibold text-[#3B82F6]">{formatDisplayDate(nextCheckInDate)}</span>
         </div>
-        <div className="rounded-md border border-[#eadfcb] bg-white/60 p-4 text-[#5c513f]">
-          Days since last check-in: <span className="font-semibold text-[#8d621d]">{daysSinceLastCheckIn}</span>
+        <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
+          Days since last check-in: <span className="font-semibold text-[#3B82F6]">{daysSinceLastCheckIn}</span>
         </div>
       </div>
     )}
-    <p className="mt-4 text-base leading-8 text-[#5c513f]">{returnMessage}</p>
-    {history.length <= 1 ? (
-      <div className="mt-3 space-y-3 text-base leading-8 text-[#5c513f]">
+    <p className="mt-4 text-base leading-8 text-[#374151]">{returnMessage}</p>
+    <div className="mt-4 grid gap-2">
+      {orderedHistory.map((entry, index) => (
+        <div key={entry.id || `${entry.created_at}-${index}`} className="flex items-center justify-between gap-4 rounded-md border border-[#E5E7EB] bg-white/60 px-4 py-3 text-sm">
+          <span className="text-[#374151]">{formatDisplayDate(new Date(entry.created_at || entry.dateCompleted || entry.timestamp))}</span>
+          <span className="font-semibold tabular-nums text-[#3B82F6]">{formatScore(entry.overallScore ?? entry.total)}</span>
+        </div>
+      ))}
+    </div>
+    {orderedHistory.length <= 1 ? (
+      <div className="mt-3 space-y-3 text-base leading-8 text-[#374151]">
         <p>This is your starting point.</p>
         <p>Return in 30 days to complete another check-in and see how your alignment changes over time.</p>
       </div>
@@ -1298,33 +1373,33 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
       <div className="mt-4 space-y-5">
         <div className="grid gap-3 text-sm sm:grid-cols-3">
           <div className="soft-panel rounded-md p-4">
-            <div className="font-semibold text-[#3c3428]">First check-in</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#8d621d]">{formatScore(firstTotal)}</div>
+            <div className="font-semibold text-[#1F2937]">First check-in</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(firstTotal)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
-            <div className="font-semibold text-[#3c3428]">Previous check-in</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#8d621d]">{formatScore(previousTotal)}</div>
+            <div className="font-semibold text-[#1F2937]">Previous check-in</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(previousTotal)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
-            <div className="font-semibold text-[#3c3428]">Current check-in</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#8d621d]">{formatScore(currentTotal)}</div>
+            <div className="font-semibold text-[#1F2937]">Current check-in</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(currentTotal)}</div>
           </div>
         </div>
         <div className="grid gap-3 text-sm sm:grid-cols-2">
-          <div className="rounded-md border border-[#eadfcb] bg-white/60 p-4 text-[#5c513f]">
-            Change since last check-in: <span className="font-semibold text-[#8d621d]">{formatChange(currentTotal - previousTotal)}</span>
-            <span className="ml-2 text-[#7b6b50]">{trendLabel(currentTotal - previousTotal)}</span>
+          <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
+            Change since last check-in: <span className="font-semibold text-[#3B82F6]">{formatChange(currentTotal - previousTotal)}</span>
+            <span className="ml-2 text-[#6B7280]">{trendLabel(currentTotal - previousTotal)}</span>
           </div>
-          <div className="rounded-md border border-[#eadfcb] bg-white/60 p-4 text-[#5c513f]">
-            Change since first check-in: <span className="font-semibold text-[#8d621d]">{formatChange(currentTotal - firstTotal)}</span>
-            <span className="ml-2 text-[#7b6b50]">{trendLabel(currentTotal - firstTotal)}</span>
+          <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
+            Change since first check-in: <span className="font-semibold text-[#3B82F6]">{formatChange(currentTotal - firstTotal)}</span>
+            <span className="ml-2 text-[#6B7280]">{trendLabel(currentTotal - firstTotal)}</span>
           </div>
         </div>
-        <p className="text-base leading-8 text-[#5c513f]">{identityProgressLanguage}</p>
-        <p className="text-base leading-8 text-[#5c513f]">{trendInsight}</p>
-        <div className="rounded-md border border-[#eadfcb] bg-white/60 p-4">
-          <div className="text-sm font-semibold text-[#3c3428]">Category trend</div>
-          <div className="mt-3 grid gap-2 text-sm text-[#5c513f]">
+        <p className="text-base leading-8 text-[#374151]">{identityProgressLanguage}</p>
+        <p className="text-base leading-8 text-[#374151]">{trendInsight}</p>
+        <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4">
+          <div className="text-sm font-semibold text-[#1F2937]">Category trend</div>
+          <div className="mt-3 grid gap-2 text-sm text-[#374151]">
             {categoryChanges.map((item) => (
               <div key={item.category} className="flex justify-between gap-4">
                 <span>{item.label}</span>
@@ -1332,20 +1407,20 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
               </div>
             ))}
           </div>
-          <p className="mt-3 text-sm leading-6 text-[#6c604d]">
+          <p className="mt-3 text-sm leading-6 text-[#6B7280]">
             {mostImproved && mostImproved.change > 0
               ? `Most improved area: ${mostImproved.label} (${formatChange(mostImproved.change)})`
               : "No area increased since your last check-in. Choose one small step and return to it consistently."}
           </p>
           {largestDecline && largestDecline.change < 0 && (
-            <p className="mt-2 text-sm leading-6 text-[#6c604d]">
+            <p className="mt-2 text-sm leading-6 text-[#6B7280]">
               Largest decline: {largestDecline.label} ({formatChange(largestDecline.change)})
             </p>
           )}
         </div>
       </div>
     )}
-    <div className="mt-5 space-y-3 text-sm leading-6 text-[#6c604d]">
+    <div className="mt-5 space-y-3 text-sm leading-6 text-[#6B7280]">
       <p>Check-in streak: {checkInStreak} {checkInStreak === 1 ? "month" : "months"}</p>
       <p>This does not define you. It shows where to return your attention.</p>
       <p>Something may be pulling you off center. Return to your focus area and begin again with one faithful step.</p>
@@ -1360,7 +1435,7 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
     </button>
     <button
       onClick={onClearHistory}
-      className="rounded-md border border-[#d7cab2] bg-white/70 px-4 py-2 text-sm font-semibold text-[#705f42] shadow-sm"
+      className="rounded-md border border-[#E5E7EB] bg-white/70 px-4 py-2 text-sm font-semibold text-[#374151] shadow-sm"
     >
       Clear History
     </button>
@@ -1371,15 +1446,15 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
 }
 
 function CheckInPage({ history, onStartNewCheckIn }) {
-  const latest = history[history.length - 1];
-  const completedDate = latest ? new Date(latest.dateCompleted) : null;
+  const recentHistory = sortHistoryNewestFirst(history);
+  const latest = recentHistory[0];
+  const completedDate = latest ? new Date(latest.created_at || latest.dateCompleted || latest.timestamp) : null;
   const nextCheckInDate = completedDate ? addDays(completedDate, 30) : null;
   const daysSinceLastCheckIn = completedDate ? daysBetween(completedDate, new Date()) : 0;
   const returnMessage =
     daysSinceLastCheckIn >= 30
       ? "It may be time for another check-in. Retake the assessment to see what has changed."
       : "Use this time to practice your next step and notice what changes.";
-  const recentHistory = [...history].reverse();
 
   return (
     <main className="page-shell">
@@ -1387,10 +1462,10 @@ function CheckInPage({ history, onStartNewCheckIn }) {
         <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <p className="eyebrow mb-4">Check-In</p>
-            <h1 className="serif text-4xl font-semibold text-[#302a21] sm:text-5xl">
+            <h1 className="serif text-4xl font-semibold text-[#1F2937] sm:text-5xl">
               {latest ? "Your next check-in" : "Start your first check-in"}
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#5c513f]">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[#374151]">
               {latest
                 ? returnMessage
                 : "Create your starting point and begin noticing alignment, resistance, and growth over time."}
@@ -1405,20 +1480,20 @@ function CheckInPage({ history, onStartNewCheckIn }) {
       {latest && (
         <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="soft-panel rounded-md p-4">
-            <div className="text-sm font-semibold text-[#3c3428]">Last check-in</div>
-            <div className="mt-2 text-base text-[#5c513f]">{formatDisplayDate(completedDate)}</div>
+            <div className="text-sm font-semibold text-[#1F2937]">Last check-in</div>
+            <div className="mt-2 text-base text-[#374151]">{formatDisplayDate(completedDate)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
-            <div className="text-sm font-semibold text-[#3c3428]">Last score</div>
-            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#8d621d]">{formatScore(latest.total)}</div>
+            <div className="text-sm font-semibold text-[#1F2937]">Last score</div>
+            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(latest.total)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
-            <div className="text-sm font-semibold text-[#3c3428]">Next suggested</div>
-            <div className="mt-2 text-base text-[#5c513f]">{formatDisplayDate(nextCheckInDate)}</div>
+            <div className="text-sm font-semibold text-[#1F2937]">Next suggested</div>
+            <div className="mt-2 text-base text-[#374151]">{formatDisplayDate(nextCheckInDate)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
-            <div className="text-sm font-semibold text-[#3c3428]">Days since</div>
-            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#8d621d]">{daysSinceLastCheckIn}</div>
+            <div className="text-sm font-semibold text-[#1F2937]">Days since</div>
+            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#3B82F6]">{daysSinceLastCheckIn}</div>
           </div>
         </section>
       )}
@@ -1426,8 +1501,8 @@ function CheckInPage({ history, onStartNewCheckIn }) {
       <section className="glass-panel mt-6 rounded-md p-5 sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="serif text-2xl font-semibold text-[#302a21]">Check-in history</h2>
-            <p className="mt-2 text-sm leading-6 text-[#6c604d]">Suggested rhythm: once per month.</p>
+            <h2 className="serif text-2xl font-semibold text-[#1F2937]">Check-in history</h2>
+            <p className="mt-2 text-sm leading-6 text-[#6B7280]">Suggested rhythm: once per month.</p>
           </div>
         </div>
 
@@ -1437,21 +1512,21 @@ function CheckInPage({ history, onStartNewCheckIn }) {
               <article key={entry.id || `${entry.dateCompleted}-${index}`} className="soft-panel rounded-md p-4 transition hover:-translate-y-0.5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <div className="font-semibold text-[#302a21]">{formatDisplayDate(new Date(entry.dateCompleted || entry.timestamp))}</div>
-                    <div className="mt-1 text-sm text-[#6c604d]">Lowest area: {domainMeta[entry.lowestCategory]?.label || "Not recorded"}</div>
+                    <div className="font-semibold text-[#1F2937]">{formatDisplayDate(new Date(entry.dateCompleted || entry.timestamp))}</div>
+                    <div className="mt-1 text-sm text-[#6B7280]">Lowest area: {domainMeta[entry.lowestCategory]?.label || "Not recorded"}</div>
                   </div>
                   <div className="grid grid-cols-4 gap-3 text-center text-sm sm:min-w-[360px]">
-                    <div><div className="font-semibold text-[#8d621d]">{formatScore(entry.total)}</div><div className="text-xs text-[#6c604d]">Total</div></div>
-                    <div><div className="font-semibold text-[#8d621d]">{formatScore(entry.spirit)}</div><div className="text-xs text-[#6c604d]">Spirit</div></div>
-                    <div><div className="font-semibold text-[#8d621d]">{formatScore(entry.soul)}</div><div className="text-xs text-[#6c604d]">Soul</div></div>
-                    <div><div className="font-semibold text-[#8d621d]">{formatScore(entry.body)}</div><div className="text-xs text-[#6c604d]">Body</div></div>
+                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.total)}</div><div className="text-xs text-[#6B7280]">Total</div></div>
+                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.spirit)}</div><div className="text-xs text-[#6B7280]">Spirit</div></div>
+                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.soul)}</div><div className="text-xs text-[#6B7280]">Soul</div></div>
+                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.body)}</div><div className="text-xs text-[#6B7280]">Body</div></div>
                   </div>
                 </div>
               </article>
             ))}
           </div>
         ) : (
-          <div className="soft-panel mt-5 rounded-md p-5 text-sm leading-6 text-[#5c513f]">
+          <div className="soft-panel mt-5 rounded-md p-5 text-sm leading-6 text-[#374151]">
             No check-ins yet. Complete the assessment to create your first entry.
           </div>
         )}
@@ -1460,7 +1535,7 @@ function CheckInPage({ history, onStartNewCheckIn }) {
   );
 }
 
-function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHistory, onStartNewCheckIn }) {
+function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHistory, onStartNewCheckIn, saveStatus }) {
   const scores = assessmentComplete ? scoreAnswers(answers) : null;
   const visualScores = scores;
   const subcategoryResults = assessmentComplete ? scoreSubcategories(answers) : null;
@@ -1492,19 +1567,11 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
   };
   const focusArea = lowestCategory && focusAreas[lowestCategory];
   const nextSteps = {
-    "Connection to God": "Spend 5 quiet minutes in prayer with no distractions.",
-    Conviction: "Act on something you know is right today, even if small.",
-    "Desire for Righteousness": "Choose what is right over what is easy once today.",
-    Surrender: "Release control of one situation and trust God with it.",
-    "Thought Life": "Notice one recurring thought today and challenge it.",
-    "Emotional Stability": "Pause before reacting once today.",
-    "Identity and Humility": "Choose humility in one interaction today.",
-    Relationships: "Reach out intentionally to one person today.",
-    "Physical Health": "Do one thing today that strengthens your body.",
-    Discipline: "Follow through on one small commitment today.",
-    "Self-Control": "Pause and choose your response once today.",
+    spirit: "Set aside five quiet minutes to pray and return your attention to God.",
+    soul: "Pause today and name one thought or emotion that needs to be brought into truth.",
+    body: "Choose one small action today and follow through on it.",
   };
-  const nextStep = subcategoryResults && nextSteps[subcategoryResults.lowest.name];
+  const nextStep = lowestCategory && nextSteps[lowestCategory];
   const growthPaths = {
     spirit: {
       beatitudes: ["Blessed are the poor in spirit, for theirs is the kingdom of heaven."],
@@ -1539,8 +1606,8 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
       <main className="mx-auto max-w-6xl px-5 pb-12 pt-4 sm:px-8">
         <section className="glass-panel rounded-md p-6 sm:p-8">
           <p className="eyebrow mb-4">Results</p>
-          <h1 className="serif text-3xl font-semibold text-[#302a21] sm:text-4xl">Results are not ready yet</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[#5c513f]">
+          <h1 className="serif text-3xl font-semibold text-[#1F2937] sm:text-4xl">Results are not ready yet</h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[#374151]">
             Complete the assessment to view your alignment score, category overview, structure visual, and next step.
           </p>
           <button
@@ -1559,28 +1626,42 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow mb-3">Results</p>
-          <h1 className="serif text-3xl font-semibold text-[#302a21] sm:text-4xl">Your alignment dashboard</h1>
+          <h1 className="serif text-3xl font-semibold text-[#1F2937] sm:text-4xl">Your alignment dashboard</h1>
         </div>
-        <p className="max-w-xl text-sm leading-6 text-[#6c604d]">A concise view of your completed assessment.</p>
+        <p className="max-w-xl text-sm leading-6 text-[#6B7280]">A concise view of your completed assessment.</p>
       </div>
+
+      {saveStatus && (
+        <div className="mb-6 rounded-md border border-[#E5E7EB] bg-white/65 px-4 py-3 text-sm font-semibold text-[#374151]">
+          {saveStatus === "saved"
+            ? "Results saved for this check-in."
+            : "Results are displayed, but could not be saved yet."}
+        </div>
+      )}
 
       <section className="glass-panel rounded-md p-5 sm:p-6">
         <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9f7026]">Alignment Score</div>
+            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#3B82F6]">Alignment Score</div>
             <div className="mt-2 flex items-end gap-3">
-              <span className="text-6xl font-semibold tabular-nums text-[#8d621d]">{formatScore(scores.total)}</span>
-              <span className="pb-2 text-xl font-medium text-[#7b6b50]">/ 10</span>
+              <span className="text-6xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(scores.total)}</span>
+              <span className="pb-2 text-xl font-medium text-[#6B7280]">/ 10</span>
             </div>
-            <div className="mt-3 flex flex-wrap gap-3 text-sm font-semibold text-[#5c513f]">
-              <span>{alignmentLevel}</span>
-              <span>These results reflect your current alignment.</span>
+            <div className="mt-4 grid max-w-2xl gap-3 text-sm sm:grid-cols-2">
+              <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Level</p>
+                <p className="mt-1 font-semibold text-[#1F2937]">{alignmentLevel}</p>
+              </div>
+              <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Meaning</p>
+                <p className="mt-1 font-semibold text-[#374151]">These results reflect your current alignment.</p>
+              </div>
             </div>
           </div>
           <div className="soft-panel rounded-md px-6 py-5 text-left md:min-w-[220px]">
-            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9f7026]">Resistance</div>
-            <div className="mt-2 text-4xl font-semibold tabular-nums text-[#302a21]">{formatScore(scores.resistance)}</div>
-            <div className="mt-2 text-sm font-semibold text-[#6c604d]">{resistanceLevel}</div>
+            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#3B82F6]">Resistance</div>
+            <div className="mt-2 text-4xl font-semibold tabular-nums text-[#1F2937]">{formatScore(scores.resistance)}</div>
+            <div className="mt-2 text-sm font-semibold text-[#6B7280]">{resistanceLevel}</div>
           </div>
         </div>
       </section>
@@ -1594,25 +1675,30 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
       <section className="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="grid gap-6">
           <section className="glass-panel rounded-md p-5 sm:p-6">
-            <h2 className="serif text-2xl font-semibold text-[#302a21]">Key Insight</h2>
-            <div className="mt-4 grid gap-3 text-sm leading-6 text-[#5c513f]">
-              <div className="soft-panel rounded-md p-4">
-                <span className="font-semibold text-[#302a21]">Strongest area:</span> {subcategoryResults.highest.name}
+            <h2 className="serif text-2xl font-semibold text-[#1F2937]">Key Insight</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="soft-panel rounded-md border-l-4 border-l-[#60A5FA] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Strongest area</p>
+                <p className="mt-2 text-xl font-semibold text-[#1F2937]">{subcategoryResults.highest.name}</p>
               </div>
-              <div className="soft-panel rounded-md p-4">
-                <span className="font-semibold text-[#302a21]">Weakest area:</span> {subcategoryResults.lowest.name}
+              <div className="soft-panel rounded-md border-l-4 border-l-[#3B82F6] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Weakest area</p>
+                <p className="mt-2 text-xl font-semibold text-[#1F2937]">{subcategoryResults.lowest.name}</p>
               </div>
             </div>
           </section>
 
           <section className="glass-panel rounded-md p-5 sm:p-6">
-            <h2 className="serif text-2xl font-semibold text-[#302a21]">Next Step</h2>
-            <div className="mt-4 space-y-4 text-sm leading-6 text-[#5c513f]">
-              <p className="font-medium text-[#3c3428]">{focusArea?.[0]}</p>
-              <p className="rounded-md border border-[#eadfcb] bg-white/65 p-4 italic text-[#4f4434]">
-                “{growthPath.beatitudes[0]}”
-              </p>
-              <p className="font-semibold text-[#8d621d]">{nextStep}</p>
+            <h2 className="serif text-2xl font-semibold text-[#1F2937]">Next Step</h2>
+            <div className="mt-4 grid gap-3">
+              <div className="soft-panel rounded-md p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Focus</p>
+                <p className="mt-2 text-xl font-semibold text-[#1F2937]">{domainMeta[lowestCategory].label}</p>
+              </div>
+              <div className="rounded-md border border-[#E5E7EB] bg-white/65 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Action</p>
+                <p className="mt-2 text-lg font-semibold leading-7 text-[#1F2937]">{nextStep}</p>
+              </div>
             </div>
           </section>
         </div>
@@ -1620,7 +1706,7 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
         <section className="glass-panel flex flex-col items-center rounded-md p-5 sm:p-6">
           <div className="mb-3 text-center">
             <p className="eyebrow">Structure</p>
-            <h2 className="serif mt-2 text-2xl font-semibold text-[#302a21]">Your Structure</h2>
+            <h2 className="serif mt-2 text-2xl font-semibold text-[#1F2937]">Your Structure</h2>
           </div>
           <EtytomicVisual scores={visualScores} compact />
         </section>
@@ -1629,13 +1715,30 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
       <section className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <SubcategoryResults results={subcategoryResults} />
         <section className="glass-panel rounded-md p-5 sm:p-6">
-          <h2 className="serif text-2xl font-semibold text-[#302a21]">Details</h2>
-          <div className="mt-4 space-y-3 text-sm leading-6 text-[#5c513f]">
-            <p><span className="font-semibold text-[#302a21]">Focus:</span> {focusArea?.[1]}</p>
-            <p><span className="font-semibold text-[#302a21]">Summary:</span> {summaryInsight}</p>
-            <p><span className="font-semibold text-[#302a21]">Growth:</span> {growthPath.explanation}</p>
+          <h2 className="serif text-2xl font-semibold text-[#1F2937]">Details</h2>
+          <div className="mt-4 grid gap-3 text-sm leading-6 text-[#374151]">
+            <div className="soft-panel rounded-md p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Focus</p>
+              <p className="mt-2">{focusArea?.[1]}</p>
+            </div>
+            <div className="soft-panel rounded-md p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Summary</p>
+              <div className="mt-2 grid gap-2">
+                {sentenceLines(summaryInsight).map((line) => (
+                  <p key={line} className="rounded-md bg-white/45 px-3 py-2">{line}</p>
+                ))}
+              </div>
+            </div>
+            <div className="soft-panel rounded-md p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Growth</p>
+              <div className="mt-2 grid gap-2">
+                {(growthPath.explanationLines || sentenceLines(growthPath.explanation)).map((line) => (
+                  <p key={line} className="rounded-md bg-white/45 px-3 py-2">{line}</p>
+                ))}
+              </div>
+            </div>
             {scores.spirit >= 7 && (
-              <p className="rounded-md border border-[#eadfcb] bg-white/55 px-4 py-3 text-xs leading-5 text-[#6c604d]">
+              <p className="rounded-md border border-[#E5E7EB] bg-white/55 px-4 py-3 text-xs leading-5 text-[#6B7280]">
                 A strong spirit reflects Christ. Even in imperfect circumstances, His light becomes visible through you.
               </p>
             )}
@@ -1644,7 +1747,7 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
       </section>
 
       <details className="glass-panel mt-6 rounded-md p-5 sm:p-6">
-        <summary className="cursor-pointer serif text-xl font-semibold text-[#302a21]">Progress over time</summary>
+        <summary className="cursor-pointer serif text-xl font-semibold text-[#1F2937]">Progress over time</summary>
         <ProgressOverTime history={history} onClearHistory={onClearHistory} onStartNewCheckIn={onStartNewCheckIn} />
       </details>
 
@@ -1657,9 +1760,31 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
         </button>
         <button
           onClick={() => setPage("checkin")}
-          className="rounded-md border border-[#d7cab2] bg-white/70 px-5 py-3 text-sm font-semibold text-[#705f42] shadow-sm"
+          className="rounded-md border border-[#E5E7EB] bg-white/70 px-5 py-3 text-sm font-semibold text-[#374151] shadow-sm"
         >
           Check In Later
+        </button>
+      </section>
+    </main>
+  );
+}
+
+function AuthenticatedStartPage({ setPage }) {
+  return (
+    <main className="page-shell">
+      <section className="glass-panel rounded-md p-8 text-center sm:p-12">
+        <p className="eyebrow mb-4">Welcome</p>
+        <h1 className="serif text-4xl font-semibold text-[#1F2937] sm:text-5xl">
+          Begin your alignment check-in.
+        </h1>
+        <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-[#374151]">
+          Take the alignment assessment to begin.
+        </p>
+        <button
+          onClick={() => setPage("assessment")}
+          className="gold-button mt-8 rounded-md px-6 py-3 text-sm font-semibold text-white"
+        >
+          Start Assessment
         </button>
       </section>
     </main>
@@ -1669,11 +1794,29 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
 function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(Boolean(supabase));
-  const [page, setPage] = useState("about");
+  const [page, setPage] = useState("start");
   const [answers, setAnswers] = useState({});
   const [assessmentComplete, setAssessmentComplete] = useState(false);
   const [history, setHistory] = useState(loadAssessmentHistory);
   const [assessmentRunId, setAssessmentRunId] = useState(0);
+  const [saveStatus, setSaveStatus] = useState(null);
+
+  async function fetchSupabaseResults(userId) {
+    if (!supabase || !userId) return;
+
+    const { data, error } = await supabase
+      .from("results")
+      .select("id,user_id,alignment_score,spirit_score,soul_score,body_score,created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Unable to fetch Supabase results.", error);
+      return;
+    }
+
+    setHistory((data || []).map(normalizeResultRow));
+  }
 
   useEffect(() => {
     if (!supabase) {
@@ -1685,14 +1828,23 @@ function App() {
 
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
-      setUser(data.session?.user || null);
+      const sessionUser = data.session?.user || null;
+      setUser(sessionUser);
+      if (sessionUser) {
+        setPage("start");
+        fetchSupabaseResults(sessionUser.id);
+      }
       setAuthLoading(false);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
-      if (session?.user) {
-        setPage("about");
+      if (session?.user && event === "SIGNED_IN") {
+        setPage("start");
+        fetchSupabaseResults(session.user.id);
+      }
+      if (!session?.user) {
+        setHistory([]);
       }
     });
 
@@ -1702,19 +1854,55 @@ function App() {
     };
   }, []);
 
-  function saveCompletedAssessment() {
+  async function saveCompletedAssessment() {
+    setSaveStatus(null);
     const scores = scoreAnswers(answers);
     const subcategoryResults = scoreSubcategories(answers);
     const entry = createHistoryEntry(scores, subcategoryResults);
-    setHistory((current) => {
-const updated = [...current, entry];
+
+    if (!supabase || !user?.id) {
+      setHistory((current) => {
+const updated = sortHistoryNewestFirst([normalizeResultRow(entry), ...current]);
 persistAssessmentHistory(updated);
 return updated;
-    });
+      });
+      setSaveStatus("failed");
+      return;
+    }
+
+    const { data, error } = await supabase.from("results").insert({
+      user_id: user.id,
+      alignment_score: scores.total,
+      spirit_score: scores.spirit,
+      soul_score: scores.soul,
+      body_score: scores.body,
+    }).select("id,user_id,alignment_score,spirit_score,soul_score,body_score,created_at").single();
+
+    if (error) {
+      console.error("Supabase results insert failed.", error);
+      setHistory((current) => sortHistoryNewestFirst([normalizeResultRow(entry), ...current]));
+      setSaveStatus("failed");
+      return;
+    }
+
+    if (data) {
+      setHistory((current) => sortHistoryNewestFirst([normalizeResultRow(data), ...current]));
+      setSaveStatus("saved");
+    } else {
+      fetchSupabaseResults(user.id);
+      setSaveStatus("saved");
+    }
   }
 
-  function clearHistory() {
+  async function clearHistory() {
     if (!window.confirm("Clear saved assessment history? Your current answers will stay on this page.")) return;
+    if (supabase && user?.id) {
+      const { error } = await supabase.from("results").delete().eq("user_id", user.id);
+      if (error) {
+        console.error("Unable to clear Supabase results.", error);
+        return;
+      }
+    }
     window.localStorage.removeItem(historyStorageKey);
     setHistory([]);
   }
@@ -1722,13 +1910,14 @@ return updated;
   function startNewCheckIn() {
     setAnswers({});
     setAssessmentComplete(false);
+    setSaveStatus(null);
     setAssessmentRunId((current) => current + 1);
     setPage("assessment");
   }
 
   function handleAuthSuccess(nextUser) {
     setUser(nextUser);
-    setPage("about");
+    setPage("start");
   }
 
   async function handleLogout() {
@@ -1736,6 +1925,7 @@ return updated;
       await supabase.auth.signOut();
     }
     setUser(null);
+    setSaveStatus(null);
     setPage("welcome");
   }
 
@@ -1744,8 +1934,8 @@ return updated;
       <>
         <main className="mx-auto max-w-3xl px-5 py-16 sm:px-8">
           <section className="glass-panel rounded-md p-8 text-center">
-            <h1 className="serif text-3xl font-semibold text-[#302a21]">Etytomic Alignment</h1>
-            <p className="mt-4 text-base leading-7 text-[#5c513f]">Preparing your account session...</p>
+            <h1 className="serif text-3xl font-semibold text-[#1F2937]">Etytomic Alignment</h1>
+            <p className="mt-4 text-base leading-7 text-[#374151]">Preparing your account session...</p>
           </section>
         </main>
         <Footer setPage={setPage} />
@@ -1769,6 +1959,7 @@ return updated;
   return (
     <>
 <Header page={page} setPage={setPage} user={user} onLogout={handleLogout} />
+{page === "start" && <AuthenticatedStartPage setPage={setPage} />}
 {page === "about" && <AboutPage setPage={setPage} />}
 {page === "assessment" && (
   <AssessmentPage
@@ -1789,6 +1980,7 @@ return updated;
     history={history}
     onClearHistory={clearHistory}
     onStartNewCheckIn={startNewCheckIn}
+    saveStatus={saveStatus}
   />
 )}
 {page === "checkin" && <CheckInPage history={history} onStartNewCheckIn={startNewCheckIn} />}
