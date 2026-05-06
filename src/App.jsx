@@ -237,6 +237,12 @@ function alignmentLevelFor(score) {
   return score >= 7 ? "High Alignment" : score >= 4 ? "Moderate Alignment" : "Low Alignment";
 }
 
+function alignmentSentenceFor(score) {
+  if (score >= 7) return "You are strongly aligned.";
+  if (score >= 4) return "Your alignment is forming with room for steadier growth.";
+  return "Your alignment is a starting point for gentle, honest growth.";
+}
+
 function resistanceLevelFor(score) {
   return score <= 3 ? "Low Resistance" : score <= 6 ? "Moderate Resistance" : "High Resistance";
 }
@@ -247,6 +253,26 @@ function lowestCategoryFor(scores) {
     ["soul", scores.soul],
     ["body", scores.body],
   ].reduce((lowest, current) => (current[1] < lowest[1] ? current : lowest))[0];
+}
+
+function isPaidUser(user) {
+  const metadata = { ...(user?.app_metadata || {}), ...(user?.user_metadata || {}) };
+  const truthyFlags = [metadata.is_paid, metadata.paid, metadata.paid_user, metadata.has_paid_access];
+  const tierValues = [
+    metadata.plan,
+    metadata.tier,
+    metadata.role,
+    metadata.account_type,
+    metadata.subscription_tier,
+    metadata.subscription_status,
+  ]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+
+  return (
+    truthyFlags.some(Boolean) ||
+    tierValues.some((value) => ["paid", "premium", "pro", "active", "subscriber"].includes(value))
+  );
 }
 
 function loadAssessmentHistory() {
@@ -349,21 +375,27 @@ function EtytomicVisual({ scores, compact = false }) {
   const centerStrength = clamp(0.42 + normalized * 0.52, 0.4, 0.94);
   const scoreStyle = (score) => {
     const alignment = clamp(score / 10, 0, 1);
+    const pull = 1 - alignment;
     return {
-      opacity: 0.78 + alignment * 0.2,
-      width: 2.4 + alignment * 1.1,
-      glowOpacity: 0.18 + alignment * 0.24,
+      opacity: 0.38 + alignment * 0.46,
+      width: 1.45 + alignment * 1.35,
+      glowOpacity: 0.06 + alignment * 0.16,
+      blur: 0.05 + pull * 0.45,
+      pull,
     };
   };
   const spiritStyle = scoreStyle(safeScores.spirit);
   const soulStyle = scoreStyle(safeScores.soul);
   const bodyStyle = scoreStyle(safeScores.body);
+  const bodyPull = bodyStyle.pull;
+  const spiritPull = spiritStyle.pull;
+  const soulPull = soulStyle.pull;
 
   const style = {
     "--light-strength": normalized,
     "--ring-definition": normalized,
-    "--beam-opacity": 0.18 + normalized * 0.34,
-    "--beam-blur": `${2 + normalized * 3}px`,
+    "--beam-opacity": 0.12 + normalized * 0.28,
+    "--beam-blur": `${2.6 + resistance * 2.8}px`,
   };
 
   return (
@@ -382,9 +414,24 @@ aria-label="Personal Etytomic Structure visual"
     <radialGradient id="minimalCenterGlow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stopColor="#FFFFFF" />
       <stop offset="28%" stopColor="#F3F4F6" stopOpacity="0.92" />
-      <stop offset="62%" stopColor="#E6C97A" stopOpacity="0.16" />
+      <stop offset="62%" stopColor="#E6C97A" stopOpacity="0.12" />
       <stop offset="100%" stopColor="#E6C97A" stopOpacity="0" />
     </radialGradient>
+    <linearGradient id="bodyRingGradient" x1="0%" x2="100%">
+      <stop offset="0%" stopColor="#CBD5E1" stopOpacity="0.34" />
+      <stop offset="48%" stopColor="#94A3B8" stopOpacity="0.78" />
+      <stop offset="100%" stopColor="#CBD5E1" stopOpacity="0.34" />
+    </linearGradient>
+    <linearGradient id="spiritRingGradient" x1="0%" x2="100%">
+      <stop offset="0%" stopColor="#CBD5E1" stopOpacity="0.36" />
+      <stop offset="52%" stopColor="#4A6FA5" stopOpacity="0.82" />
+      <stop offset="100%" stopColor="#CBD5E1" stopOpacity="0.34" />
+    </linearGradient>
+    <linearGradient id="soulRingGradient" x1="0%" x2="100%">
+      <stop offset="0%" stopColor="#E5E7EB" stopOpacity="0.38" />
+      <stop offset="50%" stopColor="#94A3B8" stopOpacity="0.72" />
+      <stop offset="100%" stopColor="#E5E7EB" stopOpacity="0.34" />
+    </linearGradient>
     <linearGradient id="crossHorizontal" x1="0%" x2="100%">
       <stop offset="0%" stopColor="#E6C97A" stopOpacity="0" />
       <stop offset="42%" stopColor="#E6C97A" stopOpacity="0.68" />
@@ -411,29 +458,32 @@ aria-label="Personal Etytomic Structure visual"
 
   <rect x="0" y="0" width={compact ? "480" : "640"} height="480" rx="36" fill="url(#structureWarmBg)" opacity="0.95" />
   <rect x="0" y="0" width={compact ? "480" : "640"} height="480" rx="36" fill="url(#minimalField)" opacity="0.62" />
-  <circle cx={centerX} cy={centerY} r={134 + resistance * 8} fill="url(#minimalCenterGlow)" opacity={0.2 + normalized * 0.18} filter="url(#minimalBlur)" />
+  <ellipse cx={centerX} cy={centerY} rx={118 + resistance * 20} ry={96 + resistance * 14} fill="url(#minimalCenterGlow)" opacity={0.16 + normalized * 0.14} filter="url(#minimalBlur)" />
 
   <g className="structure-orbit-system" style={{ transformOrigin: `${centerX}px ${centerY}px` }}>
-    <g className="structure-orbit-layer body-orbit-layer">
-      <ellipse className="structure-orbit-glow body-orbit" cx={centerX} cy={centerY} rx="188" ry="54" strokeWidth={bodyStyle.width + 4} opacity={bodyStyle.glowOpacity} />
-      <ellipse className="structure-orbit body-orbit" cx={centerX} cy={centerY} rx="188" ry="54" strokeWidth={bodyStyle.width} opacity={bodyStyle.opacity} />
+    <g
+      className="structure-orbit-layer body-orbit-layer"
+      transform={`translate(${(bodyPull * 8).toFixed(2)} ${(bodyPull * 34).toFixed(2)}) rotate(${(bodyPull * 1.6).toFixed(2)} ${centerX} ${centerY}) scale(${(1 + bodyPull * 0.02).toFixed(3)} ${(1 + bodyPull * 0.035).toFixed(3)})`}
+      style={{ transformOrigin: `${centerX}px ${centerY}px` }}
+    >
+      <ellipse className="structure-orbit-glow body-orbit" cx={centerX} cy={centerY} rx={182 + bodyPull * 10} ry={52 + bodyPull * 4} strokeWidth={bodyStyle.width + 4} opacity={bodyStyle.glowOpacity} style={{ filter: `blur(${bodyStyle.blur + 0.55}px)` }} />
+      <ellipse className="structure-orbit body-orbit" cx={centerX} cy={centerY} rx={182 + bodyPull * 10} ry={52 + bodyPull * 4} strokeWidth={bodyStyle.width} opacity={bodyStyle.opacity} style={{ filter: `blur(${bodyStyle.blur}px)` }} />
     </g>
-    <g className="structure-orbit-layer spirit-orbit-layer" style={{ transformOrigin: `${centerX}px ${centerY}px` }}>
-      <ellipse className="structure-orbit-glow spirit-orbit" cx={centerX} cy={centerY} rx="74" ry="176" strokeWidth={spiritStyle.width + 4} opacity={spiritStyle.glowOpacity} />
-      <ellipse className="structure-orbit spirit-orbit" cx={centerX} cy={centerY} rx="74" ry="176" strokeWidth={spiritStyle.width} opacity={spiritStyle.opacity} />
+    <g
+      className="structure-orbit-layer spirit-orbit-layer"
+      transform={`translate(${(-spiritPull * 34).toFixed(2)} ${(-spiritPull * 18).toFixed(2)}) rotate(${(-13 - spiritPull * 2.2).toFixed(2)} ${centerX} ${centerY}) skewX(${(spiritPull * 1.1).toFixed(2)}) scale(${(1 + spiritPull * 0.035).toFixed(3)} ${(1 + spiritPull * 0.015).toFixed(3)})`}
+      style={{ transformOrigin: `${centerX}px ${centerY}px` }}
+    >
+      <ellipse className="structure-orbit-glow spirit-orbit" cx={centerX} cy={centerY} rx={72 + spiritPull * 6} ry={172 + spiritPull * 9} strokeWidth={spiritStyle.width + 4} opacity={spiritStyle.glowOpacity} style={{ filter: `blur(${spiritStyle.blur + 0.55}px)` }} />
+      <ellipse className="structure-orbit spirit-orbit" cx={centerX} cy={centerY} rx={72 + spiritPull * 6} ry={172 + spiritPull * 9} strokeWidth={spiritStyle.width} opacity={spiritStyle.opacity} style={{ filter: `blur(${spiritStyle.blur}px)` }} />
     </g>
-    <g className="structure-orbit-layer soul-orbit-layer" style={{ transformOrigin: `${centerX}px ${centerY}px` }}>
-      <ellipse className="structure-orbit-glow soul-orbit" cx={centerX} cy={centerY} rx="78" ry="174" strokeWidth={soulStyle.width + 4} opacity={soulStyle.glowOpacity} />
-      <ellipse className="structure-orbit soul-orbit" cx={centerX} cy={centerY} rx="78" ry="174" strokeWidth={soulStyle.width} opacity={soulStyle.opacity} />
-    </g>
-    <g className="structure-node-track body-node-track" style={{ transformOrigin: `${centerX}px ${centerY}px` }}>
-      <circle className="structure-node body-node" cx={centerX + 188} cy={centerY} r="8.5" />
-    </g>
-    <g className="structure-node-track spirit-node-track" style={{ transformOrigin: `${centerX}px ${centerY}px` }}>
-      <circle className="structure-node spirit-node" cx={centerX} cy={centerY - 176} r="9" />
-    </g>
-    <g className="structure-node-track soul-node-track" style={{ transformOrigin: `${centerX}px ${centerY}px` }}>
-      <circle className="structure-node soul-node" cx={centerX} cy={centerY - 174} r="9" />
+    <g
+      className="structure-orbit-layer soul-orbit-layer"
+      transform={`translate(${(soulPull * 34).toFixed(2)} ${(soulPull * 18).toFixed(2)}) rotate(${(43 + soulPull * 2.2).toFixed(2)} ${centerX} ${centerY}) skewX(${(-soulPull * 1.1).toFixed(2)}) scale(${(1 + soulPull * 0.035).toFixed(3)} ${(1 + soulPull * 0.018).toFixed(3)})`}
+      style={{ transformOrigin: `${centerX}px ${centerY}px` }}
+    >
+      <ellipse className="structure-orbit-glow soul-orbit" cx={centerX} cy={centerY} rx={76 + soulPull * 7} ry={170 + soulPull * 9} strokeWidth={soulStyle.width + 4} opacity={soulStyle.glowOpacity} style={{ filter: `blur(${soulStyle.blur + 0.55}px)` }} />
+      <ellipse className="structure-orbit soul-orbit" cx={centerX} cy={centerY} rx={76 + soulPull * 7} ry={170 + soulPull * 9} strokeWidth={soulStyle.width} opacity={soulStyle.opacity} style={{ filter: `blur(${soulStyle.blur}px)` }} />
     </g>
   </g>
 
@@ -446,16 +496,7 @@ aria-label="Personal Etytomic Structure visual"
     <rect className="beam-core" x={centerX - 4} y={centerY - 118} width="8" height="236" rx="4" fill="#FFFFFF" />
   </g>
 
-  <g className="light-streams">
-    <circle className="light-particle particle-right" cx={centerX + 18} cy={centerY} r="2.8" fill="#E6C97A" />
-    <circle className="light-particle particle-left" cx={centerX - 18} cy={centerY} r="2.4" fill="#E6C97A" />
-    <circle className="light-particle particle-up" cx={centerX} cy={centerY - 18} r="2.5" fill="#E6C97A" />
-    <circle className="light-particle particle-down" cx={centerX} cy={centerY + 18} r="2.2" fill="#E6C97A" />
-  </g>
-
-  <circle cx={centerX} cy={centerY} r={42 + normalized * 12} fill="url(#minimalCenterGlow)" opacity={centerStrength * 0.62} filter="url(#minimalBlur)" />
-  <circle className="cross-source" cx={centerX} cy={centerY} r={16 + normalized * 5} fill="#FFFFFF" opacity={0.9 + normalized * 0.08} />
-  <circle cx={centerX} cy={centerY} r={5 + normalized * 2} fill="#E6C97A" opacity={0.78 + normalized * 0.18} />
+  <ellipse cx={centerX} cy={centerY} rx={48 + resistance * 12} ry={34 + resistance * 8} fill="url(#minimalCenterGlow)" opacity={centerStrength * 0.46} filter="url(#minimalBlur)" />
 </svg>
     </section>
   );
@@ -465,26 +506,55 @@ function LogoMark() {
   return (
     <svg className="logo-mark" viewBox="0 0 72 72" role="img" aria-label="Etytomic Alignment symbol">
       <defs>
-        <radialGradient id="logoLight" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="30%" stopColor="#F3F4F6" stopOpacity="0.42" />
-          <stop offset="58%" stopColor="#E6C97A" stopOpacity="0.16" />
-          <stop offset="100%" stopColor="#E6C97A" stopOpacity="0" />
+        <radialGradient id="logoCenterBloom" cx="50%" cy="50%" r="58%">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.88" />
+          <stop offset="34%" stopColor="#F4E2B8" stopOpacity="0.32" />
+          <stop offset="100%" stopColor="#F4E2B8" stopOpacity="0" />
         </radialGradient>
+        <linearGradient id="logoHorizontalLight" x1="6" x2="66" y1="36" y2="36">
+          <stop offset="0%" stopColor="#F4E2B8" stopOpacity="0" />
+          <stop offset="16%" stopColor="#F4E2B8" stopOpacity="0.22" />
+          <stop offset="47%" stopColor="#FFFFFF" stopOpacity="0.82" />
+          <stop offset="53%" stopColor="#FFFFFF" stopOpacity="0.82" />
+          <stop offset="84%" stopColor="#F4E2B8" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#F4E2B8" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="logoVerticalLight" x1="36" x2="36" y1="5" y2="67">
+          <stop offset="0%" stopColor="#F4E2B8" stopOpacity="0" />
+          <stop offset="16%" stopColor="#F4E2B8" stopOpacity="0.22" />
+          <stop offset="47%" stopColor="#FFFFFF" stopOpacity="0.86" />
+          <stop offset="53%" stopColor="#FFFFFF" stopOpacity="0.86" />
+          <stop offset="84%" stopColor="#F4E2B8" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#F4E2B8" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="logoOrbitBlue" x1="10" x2="62" y1="18" y2="54">
+          <stop offset="0%" stopColor="#4A6FA5" stopOpacity="0.3" />
+          <stop offset="48%" stopColor="#4A6FA5" stopOpacity="0.66" />
+          <stop offset="100%" stopColor="#CBD5E1" stopOpacity="0.32" />
+        </linearGradient>
+        <linearGradient id="logoOrbitSlate" x1="58" x2="14" y1="18" y2="54">
+          <stop offset="0%" stopColor="#CBD5E1" stopOpacity="0.28" />
+          <stop offset="52%" stopColor="#94A3B8" stopOpacity="0.58" />
+          <stop offset="100%" stopColor="#4A6FA5" stopOpacity="0.28" />
+        </linearGradient>
+        <filter id="logoSoftBlur" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="1.1" />
+        </filter>
       </defs>
-      <circle className="logo-light-field" cx="36" cy="36" r="20" fill="url(#logoLight)" />
-      <ellipse className="logo-orbit logo-orbit-body" cx="36" cy="36" rx="25.5" ry="7.25" opacity="0.58" strokeWidth="1.1" />
-      <ellipse className="logo-orbit logo-orbit-spirit" cx="36" cy="36" rx="9.25" ry="27.5" transform="rotate(-34 36 36)" opacity="0.58" strokeWidth="1.1" />
-      <ellipse className="logo-orbit logo-orbit-soul" cx="36" cy="36" rx="9.25" ry="27.5" transform="rotate(34 36 36)" opacity="0.54" strokeWidth="1.1" />
-      <g
-        className="logo-cross"
-        style={{
-          filter: "drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 3px rgba(230,201,122,0.34))",
-        }}
-      >
-        <path d="M36 18.5v35" style={{ stroke: "#F8E7B0", strokeWidth: 3.55, strokeLinecap: "round" }} />
-        <path d="M24 32.75h24" style={{ stroke: "#F8E7B0", strokeWidth: 3.55, strokeLinecap: "round" }} />
+      <rect x="0" y="0" width="72" height="72" rx="18" fill="#FFFFFF" opacity="0.92" />
+      <ellipse cx="36" cy="36" rx="22" ry="19" fill="url(#logoCenterBloom)" filter="url(#logoSoftBlur)" />
+
+      <ellipse cx="36" cy="36" rx="26" ry="7.4" fill="none" stroke="url(#logoOrbitSlate)" strokeWidth="1.35" strokeLinecap="round" opacity="0.45" />
+      <ellipse cx="36" cy="36" rx="9.4" ry="27.6" transform="rotate(-34 36 36)" fill="none" stroke="url(#logoOrbitBlue)" strokeWidth="1.35" strokeLinecap="round" opacity="0.58" />
+
+      <g opacity="0.92">
+        <rect x="8" y="32" width="56" height="8" rx="4" fill="url(#logoHorizontalLight)" filter="url(#logoSoftBlur)" />
+        <rect x="31.5" y="6" width="9" height="60" rx="4.5" fill="url(#logoVerticalLight)" filter="url(#logoSoftBlur)" />
+        <rect x="14" y="34.15" width="44" height="3.7" rx="1.85" fill="url(#logoHorizontalLight)" opacity="0.82" />
+        <rect x="34.15" y="12" width="3.7" height="48" rx="1.85" fill="url(#logoVerticalLight)" opacity="0.86" />
       </g>
+
+      <ellipse cx="36" cy="36" rx="9.4" ry="27.6" transform="rotate(34 36 36)" fill="none" stroke="url(#logoOrbitSlate)" strokeWidth="1.35" strokeLinecap="round" opacity="0.52" />
     </svg>
   );
 }
@@ -494,6 +564,7 @@ function Header({ page, setPage, user, onLogout }) {
     ["about", "About"],
     ["assessment", "Alignment Assessment"],
     ["results", "Results"],
+    ["progress", "Progress"],
     ["checkin", "Check-In"],
   ];
   const displayName = user?.user_metadata?.display_name || user?.user_metadata?.username || user?.email;
@@ -507,7 +578,7 @@ function Header({ page, setPage, user, onLogout }) {
   </span>
   <div>
     <div className="brand-title serif">Etytomic Alignment</div>
-    <div className="brand-subtitle">Alignment in practice</div>
+    <div className="brand-subtitle">Assessment</div>
   </div>
 </button>
 <div className="flex flex-col gap-3 lg:items-end">
@@ -657,13 +728,18 @@ function Footer({ setPage }) {
   ];
 
   return (
-    <footer className="mx-auto w-full max-w-6xl px-5 pb-8 pt-2 sm:px-8">
-<div className="flex flex-wrap gap-4 border-t border-[#E5E7EB] pt-5 text-sm text-[#6B7280]">
-  {links.map(([key, label]) => (
-    <button key={key} onClick={() => setPage(key)} className="font-medium hover:text-[#3B82F6]">
-      {label}
-    </button>
-  ))}
+    <footer className="mx-auto w-full max-w-6xl px-5 py-6 text-center sm:px-8">
+<div className="border-t border-[#E5E7EB] pt-6">
+  <div className="flex flex-wrap justify-center gap-4 text-sm text-[#6B7280]">
+    {links.map(([key, label]) => (
+      <button key={key} onClick={() => setPage(key)} className="font-medium hover:text-[#3F5F8C]">
+        {label}
+      </button>
+    ))}
+  </div>
+  <p className="mt-4 text-xs text-[#9CA3AF]">
+    © 2026 <span className="font-medium text-[#6B7280]">Etytomic Labs</span>, LLC
+  </p>
 </div>
     </footer>
   );
@@ -673,11 +749,11 @@ function SignUpAgreement({ setPage }) {
   return (
     <p className="text-xs leading-5 text-[#6B7280]">
 By creating an account, you agree to our{" "}
-<button onClick={() => setPage("terms")} className="font-semibold text-[#3B82F6] underline">
+<button onClick={() => setPage("terms")} className="font-semibold text-[#4A6FA5] underline">
   Terms of Use
 </button>{" "}
 and{" "}
-<button onClick={() => setPage("privacy")} className="font-semibold text-[#3B82F6] underline">
+<button onClick={() => setPage("privacy")} className="font-semibold text-[#4A6FA5] underline">
   Privacy Policy
 </button>
 .
@@ -758,7 +834,7 @@ function WelcomePage({ setPage, onAuthSuccess }) {
   }
 
   const inputClass =
-    "mt-2 w-full rounded-md border border-[#E5E7EB] bg-white/80 px-3 py-2 text-sm text-[#1F2937] shadow-sm outline-none transition focus:border-[#3B82F6] focus:ring-2 focus:ring-[#BFDBFE]";
+    "mt-2 w-full rounded-md border border-[#E5E7EB] bg-white/80 px-3 py-2 text-sm text-[#1F2937] shadow-sm outline-none transition focus:border-[#4A6FA5] focus:ring-2 focus:ring-[#CBD5E1]";
 
   return (
     <main className="mx-auto max-w-6xl px-5 pb-12 pt-8 sm:px-8">
@@ -780,7 +856,7 @@ function WelcomePage({ setPage, onAuthSuccess }) {
 
           <div className="space-y-6">
             {accountCreated && (
-              <div className="rounded-md border border-[#3B82F6] bg-[#F9FAFB] p-6 shadow-sm">
+              <div className="rounded-md border border-[#4A6FA5] bg-[#F9FAFB] p-6 shadow-sm">
                 <p className="eyebrow mb-3">Confirmation sent</p>
                 <h2 className="serif text-3xl font-semibold text-[#1F2937]">Account created!</h2>
                 <div className="mt-3 space-y-3 text-sm leading-7 text-[#374151]">
@@ -945,7 +1021,7 @@ function AboutPage({ setPage }) {
           <article key={card.title} className="soft-panel rounded-md p-5 transition hover:-translate-y-0.5">
             <h2 className="serif text-xl font-semibold text-[#1F2937]">{card.title}</h2>
             <p className="mt-3 text-sm leading-6 text-[#374151]">{card.body}</p>
-            <p className="mt-4 rounded-md bg-white/55 p-3 text-xs font-semibold leading-5 text-[#3B82F6]">{card.note}</p>
+            <p className="mt-4 rounded-md bg-white/55 p-3 text-xs font-semibold leading-5 text-[#4A6FA5]">{card.note}</p>
           </article>
         ))}
       </section>
@@ -959,7 +1035,7 @@ function AboutPage({ setPage }) {
               <div key={name} className="soft-panel rounded-md p-4">
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="font-semibold text-[#1F2937]">{name}</h3>
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#3B82F6]">{title}</span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#4A6FA5]">{title}</span>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-[#374151]">{body}</p>
               </div>
@@ -984,8 +1060,8 @@ function ScoreButtons({ value, onChange }) {
     onClick={() => onChange(score)}
     className={`h-10 rounded-md border text-sm font-semibold transition ${
       value === score
-        ? "border-[#3B82F6] bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/20"
-        : "border-[#E5E7EB] bg-white/75 text-[#374151] shadow-sm hover:border-[#3B82F6] hover:bg-[#F9FAFB]"
+        ? "border-[#4A6FA5] bg-[#4A6FA5] text-white shadow-md shadow-[#4A6FA5]/20"
+        : "border-[#E5E7EB] bg-white/75 text-[#374151] shadow-sm hover:border-[#3F5F8C] hover:bg-[#F9FAFB]"
     }`}
   >
     {score}
@@ -1063,15 +1139,11 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
                 This is a reflection tool for noticing alignment and resistance. Answer honestly based on where you are today.
               </p>
             </div>
-            <div className="grid gap-3">
-              {[
-                "Not a measure of worth or standing.",
-                "Not a final judgment, diagnosis, or label.",
-                "Not a replacement for guidance, counseling, or support.",
-                "Growth begins with clarity.",
-              ].map((line) => (
-                <div key={line} className="soft-panel rounded-md p-4 text-sm font-medium leading-6 text-[#374151]">{line}</div>
-              ))}
+            <div className="mt-1 space-y-2 text-sm leading-relaxed text-[#6B7280] lg:mt-2">
+              <p>Not a measure of worth or standing</p>
+              <p>Not a final judgment, diagnosis, or label</p>
+              <p>Not a replacement for guidance, counseling, or support</p>
+              <p className="mt-5 text-base font-medium text-[#374151]">Growth begins with clarity.</p>
             </div>
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -1095,7 +1167,7 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
           <span>{answeredCount} of {allQuestions.length} scored</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
-          <div className="h-full rounded-full bg-[#3B82F6] transition-all duration-500" style={{ width: `${sectionProgress}%` }} />
+          <div className="h-full rounded-full bg-[#CBD5E1] transition-all duration-500" style={{ width: `${sectionProgress}%` }} />
         </div>
         <div className="mt-3 text-xs text-[#6B7280]">
           {allSectionsComplete ? "Assessment complete" : `${completedSections} of ${sections.length} sections completed`}
@@ -1105,7 +1177,7 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
       <section key={sectionIndex} className="assessment-section glass-panel mt-6 rounded-md p-6 sm:p-8">
         <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3B82F6]">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#4A6FA5]">
               <span>{section.domain}</span>
               <span>•</span>
               <span>{domainMeta[section.key].weight}</span>
@@ -1124,7 +1196,7 @@ function AssessmentPage({ answers, setAnswers, setPage, assessmentComplete, setA
             return (
               <div key={id} className="soft-panel rounded-md p-4 sm:p-5">
                 <div className="mb-4 flex gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F9FAFB] text-sm font-semibold text-[#3B82F6] shadow-sm">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F9FAFB] text-sm font-semibold text-[#4A6FA5] shadow-sm">
                     {questionIndex + 1}
                   </span>
                   <p className="text-base font-medium leading-7 text-[#1F2937]">{getQuestionText(question)}</p>
@@ -1159,10 +1231,10 @@ function ResultMetric({ label, value, detail }) {
     <div className="soft-panel rounded-md p-4">
 <div className="flex items-baseline justify-between gap-3">
   <div className="text-sm font-semibold text-[#1F2937]">{label}</div>
-  <div className="text-2xl font-semibold tabular-nums text-[#3B82F6]">{value.toFixed(1)}</div>
+  <div className="text-2xl font-semibold tabular-nums text-[#4A6FA5]">{value.toFixed(1)}</div>
 </div>
 <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
-  <div className="h-full rounded-full bg-[#3B82F6]" style={{ width: `${value * 10}%` }} />
+  <div className="h-full rounded-full bg-[#CBD5E1]" style={{ width: `${value * 10}%` }} />
 </div>
 <div className="mt-3 text-xs leading-5 text-[#6B7280]">{detail}</div>
 <div className="mt-1 text-xs font-medium text-[#6B7280]">Resistance {(10 - value).toFixed(1)}</div>
@@ -1175,17 +1247,16 @@ function CategoryOverviewCard({ name, value, detail }) {
     <div className="soft-panel rounded-md p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Category</p>
-          <h3 className="serif text-xl font-semibold text-[#1F2937]">{name}</h3>
+          <h3 className="serif text-2xl font-semibold text-[#1F2937]">{name}</h3>
           <p className="mt-1 text-xs leading-5 text-[#6B7280]">{detail}</p>
         </div>
         <div className="text-right">
           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Score</div>
-          <div className="text-3xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(value)}</div>
+          <div className="text-3xl font-semibold tabular-nums text-[#1F2937]">{formatScore(value)}</div>
         </div>
       </div>
-      <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
-        <div className="h-full rounded-full bg-[#3B82F6]" style={{ width: `${value * 10}%` }} />
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#CBD5E1]">
+        <div className="h-full rounded-full bg-[#CBD5E1]" style={{ width: `${value * 10}%` }} />
       </div>
     </div>
   );
@@ -1211,10 +1282,10 @@ function SubcategoryResults({ results }) {
           <div key={item.name}>
             <div className="flex items-center justify-between gap-3 text-sm">
               <span className="text-[#374151]">{item.name}</span>
-              <span className="font-semibold tabular-nums text-[#3B82F6]">{formatScore(item.score)}</span>
+              <span className="font-semibold tabular-nums text-[#4A6FA5]">{formatScore(item.score)}</span>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
-              <div className="h-full rounded-full bg-[#3B82F6]" style={{ width: `${item.score * 10}%` }} />
+              <div className="h-full rounded-full bg-[#CBD5E1]" style={{ width: `${item.score * 10}%` }} />
             </div>
           </div>
         ))}
@@ -1348,10 +1419,10 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
     {current && (
       <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
         <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
-          Next suggested check-in: <span className="font-semibold text-[#3B82F6]">{formatDisplayDate(nextCheckInDate)}</span>
+          Next suggested check-in: <span className="font-semibold text-[#4A6FA5]">{formatDisplayDate(nextCheckInDate)}</span>
         </div>
         <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
-          Days since last check-in: <span className="font-semibold text-[#3B82F6]">{daysSinceLastCheckIn}</span>
+          Days since last check-in: <span className="font-semibold text-[#4A6FA5]">{daysSinceLastCheckIn}</span>
         </div>
       </div>
     )}
@@ -1360,7 +1431,7 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
       {orderedHistory.map((entry, index) => (
         <div key={entry.id || `${entry.created_at}-${index}`} className="flex items-center justify-between gap-4 rounded-md border border-[#E5E7EB] bg-white/60 px-4 py-3 text-sm">
           <span className="text-[#374151]">{formatDisplayDate(new Date(entry.created_at || entry.dateCompleted || entry.timestamp))}</span>
-          <span className="font-semibold tabular-nums text-[#3B82F6]">{formatScore(entry.overallScore ?? entry.total)}</span>
+          <span className="font-semibold tabular-nums text-[#4A6FA5]">{formatScore(entry.overallScore ?? entry.total)}</span>
         </div>
       ))}
     </div>
@@ -1374,24 +1445,24 @@ identityProgressLanguage = "Steady scores can still reflect hidden growth. Conti
         <div className="grid gap-3 text-sm sm:grid-cols-3">
           <div className="soft-panel rounded-md p-4">
             <div className="font-semibold text-[#1F2937]">First check-in</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(firstTotal)}</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#4A6FA5]">{formatScore(firstTotal)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
             <div className="font-semibold text-[#1F2937]">Previous check-in</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(previousTotal)}</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#4A6FA5]">{formatScore(previousTotal)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
             <div className="font-semibold text-[#1F2937]">Current check-in</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(currentTotal)}</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-[#4A6FA5]">{formatScore(currentTotal)}</div>
           </div>
         </div>
         <div className="grid gap-3 text-sm sm:grid-cols-2">
           <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
-            Change since last check-in: <span className="font-semibold text-[#3B82F6]">{formatChange(currentTotal - previousTotal)}</span>
+            Change since last check-in: <span className="font-semibold text-[#4A6FA5]">{formatChange(currentTotal - previousTotal)}</span>
             <span className="ml-2 text-[#6B7280]">{trendLabel(currentTotal - previousTotal)}</span>
           </div>
           <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-4 text-[#374151]">
-            Change since first check-in: <span className="font-semibold text-[#3B82F6]">{formatChange(currentTotal - firstTotal)}</span>
+            Change since first check-in: <span className="font-semibold text-[#4A6FA5]">{formatChange(currentTotal - firstTotal)}</span>
             <span className="ml-2 text-[#6B7280]">{trendLabel(currentTotal - firstTotal)}</span>
           </div>
         </div>
@@ -1485,7 +1556,7 @@ function CheckInPage({ history, onStartNewCheckIn }) {
           </div>
           <div className="soft-panel rounded-md p-4">
             <div className="text-sm font-semibold text-[#1F2937]">Last score</div>
-            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(latest.total)}</div>
+            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#4A6FA5]">{formatScore(latest.total)}</div>
           </div>
           <div className="soft-panel rounded-md p-4">
             <div className="text-sm font-semibold text-[#1F2937]">Next suggested</div>
@@ -1493,7 +1564,7 @@ function CheckInPage({ history, onStartNewCheckIn }) {
           </div>
           <div className="soft-panel rounded-md p-4">
             <div className="text-sm font-semibold text-[#1F2937]">Days since</div>
-            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#3B82F6]">{daysSinceLastCheckIn}</div>
+            <div className="mt-1 text-3xl font-semibold tabular-nums text-[#4A6FA5]">{daysSinceLastCheckIn}</div>
           </div>
         </section>
       )}
@@ -1516,10 +1587,10 @@ function CheckInPage({ history, onStartNewCheckIn }) {
                     <div className="mt-1 text-sm text-[#6B7280]">Lowest area: {domainMeta[entry.lowestCategory]?.label || "Not recorded"}</div>
                   </div>
                   <div className="grid grid-cols-4 gap-3 text-center text-sm sm:min-w-[360px]">
-                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.total)}</div><div className="text-xs text-[#6B7280]">Total</div></div>
-                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.spirit)}</div><div className="text-xs text-[#6B7280]">Spirit</div></div>
-                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.soul)}</div><div className="text-xs text-[#6B7280]">Soul</div></div>
-                    <div><div className="font-semibold text-[#3B82F6]">{formatScore(entry.body)}</div><div className="text-xs text-[#6B7280]">Body</div></div>
+                    <div><div className="font-semibold text-[#4A6FA5]">{formatScore(entry.total)}</div><div className="text-xs text-[#6B7280]">Total</div></div>
+                    <div><div className="font-semibold text-[#4A6FA5]">{formatScore(entry.spirit)}</div><div className="text-xs text-[#6B7280]">Spirit</div></div>
+                    <div><div className="font-semibold text-[#4A6FA5]">{formatScore(entry.soul)}</div><div className="text-xs text-[#6B7280]">Soul</div></div>
+                    <div><div className="font-semibold text-[#4A6FA5]">{formatScore(entry.body)}</div><div className="text-xs text-[#6B7280]">Body</div></div>
                   </div>
                 </div>
               </article>
@@ -1535,11 +1606,183 @@ function CheckInPage({ history, onStartNewCheckIn }) {
   );
 }
 
-function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHistory, onStartNewCheckIn, saveStatus }) {
+function ProgressPage({ user }) {
+  const [entries, setEntries] = useState([]);
+  const [status, setStatus] = useState("loading");
+
+  useEffect(() => {
+    let active = true;
+
+    async function fetchRecentResults() {
+      if (!supabase || !user?.id) {
+        if (active) {
+          setEntries([]);
+          setStatus("ready");
+        }
+        return;
+      }
+
+      setStatus("loading");
+      const { data, error } = await supabase
+        .from("results")
+        .select("id,user_id,alignment_score,spirit_score,soul_score,body_score,created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      if (!active) return;
+
+      if (error) {
+        console.error("Unable to fetch recent progress results.", error);
+        setEntries([]);
+        setStatus("error");
+        return;
+      }
+
+      setEntries((data || []).map(normalizeResultRow));
+      setStatus("ready");
+    }
+
+    fetchRecentResults();
+
+    return () => {
+      active = false;
+    };
+  }, [user?.id]);
+
+  const current = entries[0];
+  const previous = entries[1];
+  const scoreDifference = current && previous ? current.total - previous.total : null;
+
+  return (
+    <main className="page-shell">
+      <section className="glass-panel rounded-md p-6 sm:p-8">
+        <p className="eyebrow mb-4">Progress</p>
+        <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <h1 className="serif text-4xl font-semibold text-[#1F2937] sm:text-5xl">Your recent check-ins</h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[#6B7280]">
+              A simple view of your last three completed assessments.
+            </p>
+          </div>
+          {scoreDifference !== null && (
+            <div className="soft-panel rounded-md p-4 text-right">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Since previous</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-[#4A6FA5]">{formatChange(scoreDifference)}</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="glass-panel mt-6 rounded-md p-5 sm:p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="serif text-2xl font-semibold text-[#1F2937]">Last 3 assessments</h2>
+            <p className="mt-2 text-sm leading-6 text-[#6B7280]">No charts yet. Just the essentials.</p>
+          </div>
+          {scoreDifference !== null && (
+            <p className="text-sm font-medium text-[#374151]">
+              Most recent vs previous: <span className="font-semibold text-[#4A6FA5]">{formatChange(scoreDifference)}</span>
+            </p>
+          )}
+        </div>
+
+        {status === "loading" && (
+          <div className="soft-panel mt-5 rounded-md p-5 text-sm leading-6 text-[#6B7280]">
+            Loading your progress...
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="soft-panel mt-5 rounded-md p-5 text-sm leading-6 text-[#6B7280]">
+            Progress could not be loaded yet.
+          </div>
+        )}
+
+        {status === "ready" && !entries.length && (
+          <div className="soft-panel mt-5 rounded-md p-5 text-sm leading-6 text-[#374151]">
+            No completed assessments yet. Finish an assessment to start tracking progress.
+          </div>
+        )}
+
+        {status === "ready" && entries.length > 0 && (
+          <div className="mt-5 grid gap-3">
+            {entries.map((entry, index) => (
+              <article key={entry.id || `${entry.created_at}-${index}`} className="soft-panel rounded-md p-4">
+                <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
+                  <div>
+                    <p className="font-semibold text-[#1F2937]">
+                      {formatDisplayDate(new Date(entry.created_at || entry.dateCompleted || entry.timestamp))}
+                    </p>
+                    <p className="mt-1 text-sm text-[#6B7280]">
+                      Overall score: <span className="font-semibold tabular-nums text-[#4A6FA5]">{formatScore(entry.total)}</span>
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-center text-sm md:min-w-[300px]">
+                    <div>
+                      <div className="font-semibold tabular-nums text-[#1F2937]">{formatScore(entry.spirit)}</div>
+                      <div className="text-xs text-[#6B7280]">Spirit</div>
+                    </div>
+                    <div>
+                      <div className="font-semibold tabular-nums text-[#1F2937]">{formatScore(entry.soul)}</div>
+                      <div className="text-xs text-[#6B7280]">Soul</div>
+                    </div>
+                    <div>
+                      <div className="font-semibold tabular-nums text-[#1F2937]">{formatScore(entry.body)}</div>
+                      <div className="text-xs text-[#6B7280]">Body</div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {status === "ready" && entries.length === 1 && (
+          <p className="mt-4 text-sm leading-6 text-[#6B7280]">
+            Complete another assessment to compare your most recent score with the previous one.
+          </p>
+        )}
+      </section>
+    </main>
+  );
+}
+
+function AlignmentJournalSection() {
+  return (
+    <section className="glass-panel mt-6 rounded-md p-5 sm:p-6">
+      <div className="max-w-2xl">
+        <p className="eyebrow mb-3">Reflection</p>
+        <h2 className="serif text-2xl font-semibold text-[#1F2937]">Begin Your Alignment Work</h2>
+        <p className="mt-3 text-base leading-7 text-[#374151]">
+          "What action have you been avoiding that you know is right?"
+        </p>
+      </div>
+      <div className="mt-5 grid gap-4">
+        <textarea
+          rows={5}
+          className="w-full rounded-md border border-[#E5E7EB] bg-white/80 px-4 py-3 text-sm leading-6 text-[#1F2937] shadow-sm outline-none transition focus:border-[#4A6FA5] focus:ring-2 focus:ring-[#CBD5E1]"
+          placeholder="Write your reflection here..."
+        />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <button
+            type="button"
+            className="gold-button rounded-md px-5 py-3 text-sm font-semibold text-white"
+          >
+            Save Reflection
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHistory, onStartNewCheckIn, saveStatus, user }) {
   const scores = assessmentComplete ? scoreAnswers(answers) : null;
   const visualScores = scores;
   const subcategoryResults = assessmentComplete ? scoreSubcategories(answers) : null;
   const alignmentLevel = scores && alignmentLevelFor(scores.total);
+  const alignmentSentence = scores && alignmentSentenceFor(scores.total);
   const resistanceLevel = scores && resistanceLevelFor(scores.resistance);
   const lowestCategory = scores && lowestCategoryFor(scores);
   const summaryInsights = {
@@ -1626,27 +1869,28 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow mb-3">Results</p>
-          <h1 className="serif text-3xl font-semibold text-[#1F2937] sm:text-4xl">Your alignment dashboard</h1>
+          <h1 className="serif text-3xl font-semibold text-[#1F2937] sm:text-4xl">Your alignment reflection</h1>
         </div>
-        <p className="max-w-xl text-sm leading-6 text-[#6B7280]">A concise view of your completed assessment.</p>
+        <p className="max-w-xl text-sm leading-6 text-[#6B7280]">A calm view of what your completed assessment reflects.</p>
       </div>
 
       {saveStatus && (
         <div className="mb-6 rounded-md border border-[#E5E7EB] bg-white/65 px-4 py-3 text-sm font-semibold text-[#374151]">
           {saveStatus === "saved"
             ? "Results saved for this check-in."
-            : "Results are displayed, but could not be saved yet."}
+            : "Your results are connected to your account."}
         </div>
       )}
 
       <section className="glass-panel rounded-md p-5 sm:p-6">
         <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#3B82F6]">Alignment Score</div>
+            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#4A6FA5]">Alignment Score</div>
             <div className="mt-2 flex items-end gap-3">
-              <span className="text-6xl font-semibold tabular-nums text-[#3B82F6]">{formatScore(scores.total)}</span>
+              <span className="text-6xl font-semibold tabular-nums text-[#1F2937]">{formatScore(scores.total)}</span>
               <span className="pb-2 text-xl font-medium text-[#6B7280]">/ 10</span>
             </div>
+            <p className="mt-3 text-base font-medium leading-7 text-[#374151]">{alignmentSentence}</p>
             <div className="mt-4 grid max-w-2xl gap-3 text-sm sm:grid-cols-2">
               <div className="rounded-md border border-[#E5E7EB] bg-white/60 p-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Level</p>
@@ -1659,7 +1903,7 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
             </div>
           </div>
           <div className="soft-panel rounded-md px-6 py-5 text-left md:min-w-[220px]">
-            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#3B82F6]">Resistance</div>
+            <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[#4A6FA5]">Resistance</div>
             <div className="mt-2 text-4xl font-semibold tabular-nums text-[#1F2937]">{formatScore(scores.resistance)}</div>
             <div className="mt-2 text-sm font-semibold text-[#6B7280]">{resistanceLevel}</div>
           </div>
@@ -1677,11 +1921,11 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
           <section className="glass-panel rounded-md p-5 sm:p-6">
             <h2 className="serif text-2xl font-semibold text-[#1F2937]">Key Insight</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="soft-panel rounded-md border-l-4 border-l-[#60A5FA] p-4">
+              <div className="soft-panel rounded-md border-l-4 border-l-[#CBD5E1] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Strongest area</p>
                 <p className="mt-2 text-xl font-semibold text-[#1F2937]">{subcategoryResults.highest.name}</p>
               </div>
-              <div className="soft-panel rounded-md border-l-4 border-l-[#3B82F6] p-4">
+              <div className="soft-panel rounded-md border-l-4 border-l-[#4A6FA5] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Weakest area</p>
                 <p className="mt-2 text-xl font-semibold text-[#1F2937]">{subcategoryResults.lowest.name}</p>
               </div>
@@ -1745,6 +1989,8 @@ function ResultsPage({ answers, setPage, assessmentComplete, history, onClearHis
           </div>
         </section>
       </section>
+
+      <AlignmentJournalSection />
 
       <details className="glass-panel mt-6 rounded-md p-5 sm:p-6">
         <summary className="cursor-pointer serif text-xl font-semibold text-[#1F2937]">Progress over time</summary>
@@ -1981,8 +2227,10 @@ return updated;
     onClearHistory={clearHistory}
     onStartNewCheckIn={startNewCheckIn}
     saveStatus={saveStatus}
+    user={user}
   />
 )}
+{page === "progress" && <ProgressPage user={user} />}
 {page === "checkin" && <CheckInPage history={history} onStartNewCheckIn={startNewCheckIn} />}
 {["terms", "privacy", "disclaimer"].includes(page) && <LegalPage type={page} />}
 <Footer setPage={setPage} />

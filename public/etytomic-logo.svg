@@ -9,8 +9,8 @@
   </defs>
   <rect width="72" height="72" rx="20" fill="#F9FAFB"/>
   <circle cx="36" cy="36" r="20" fill="url(#light)" opacity=".82"/>
-  <ellipse cx="36" cy="36" rx="25.5" ry="7.25" fill="none" stroke="#60A5FA" stroke-width="1.35" stroke-linecap="round"/>
-  <ellipse cx="36" cy="36" rx="9.25" ry="27.5" transform="rotate(-34 36 36)" fill="none" stroke="#3B82F6" stroke-width="1.35" stroke-linecap="round"/>
+  <ellipse cx="36" cy="36" rx="25.5" ry="7.25" fill="none" stroke="#CBD5E1" stroke-width="1.35" stroke-linecap="round"/>
+  <ellipse cx="36" cy="36" rx="9.25" ry="27.5" transform="rotate(-34 36 36)" fill="none" stroke="#4A6FA5" stroke-width="1.35" stroke-linecap="round"/>
   <ellipse cx="36" cy="36" rx="9.25" ry="27.5" transform="rotate(34 36 36)" fill="none" stroke="#94A3B8" stroke-width="1.35" stroke-linecap="round"/>
   <path d="M36 19.5v34M24.5 33.25h23" fill="none" stroke="#E6C97A" stroke-width="3.15" stroke-linecap="round"/>
 </svg>

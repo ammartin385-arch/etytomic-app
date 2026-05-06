@@ -3,8 +3,9 @@
         --app-bg: #F9FAFB;
         --card-bg: #FFFFFF;
         --border-soft: #E5E7EB;
-        --accent-blue: #3B82F6;
-        --accent-blue-soft: #60A5FA;
+        --accent-blue: #4A6FA5;
+        --accent-blue-hover: #3F5F8C;
+        --accent-blue-soft: #CBD5E1;
         --accent-slate: #94A3B8;
         --gold-subtle: #E6C97A;
         --cream-50: var(--card-bg);
@@ -67,9 +68,9 @@
       }
 
       .gold-button {
-        background: #3B82F6;
+        background: #4A6FA5;
         box-shadow:
-          0 14px 28px rgba(59, 130, 246, 0.18),
+          0 14px 28px rgba(74, 111, 165, 0.18),
           inset 0 1px 0 rgba(255, 255, 255, 0.16);
         transition:
           transform 180ms ease,
@@ -79,10 +80,11 @@
 
       .gold-button:hover:not(:disabled) {
         transform: translateY(-1px);
+        background: var(--accent-blue-hover);
         filter: none;
         box-shadow:
-          0 18px 34px rgba(59, 130, 246, 0.22),
-          0 0 0 4px rgba(96, 165, 250, 0.16),
+          0 18px 34px rgba(63, 95, 140, 0.22),
+          0 0 0 4px rgba(203, 213, 225, 0.16),
           inset 0 1px 0 rgba(255, 255, 255, 0.14);
       }
 
@@ -118,7 +120,7 @@
         position: absolute;
         inset: auto 0 0 0;
         height: 1px;
-        background: linear-gradient(90deg, rgba(59, 130, 246, 0.22), rgba(148, 163, 184, 0.14) 36%, transparent 72%);
+        background: linear-gradient(90deg, rgba(74, 111, 165, 0.22), rgba(148, 163, 184, 0.14) 36%, transparent 72%);
         opacity: 0.8;
       }
 
@@ -161,7 +163,7 @@
       }
 
       .logo-orbit-spirit {
-        stroke: #3B82F6;
+        stroke: #4A6FA5;
       }
 
       .logo-orbit-soul {
@@ -169,7 +171,7 @@
       }
 
       .logo-orbit-body {
-        stroke: #60A5FA;
+        stroke: #CBD5E1;
       }
 
       .logo-cross path {
@@ -190,11 +192,11 @@
       }
 
       .brand-subtitle {
-        margin-top: 0.24rem;
+        margin-top: 0.18rem;
         color: #6B7280;
-        font-size: 0.72rem;
-        font-weight: 750;
-        letter-spacing: 0.17em;
+        font-size: 0.68rem;
+        font-weight: 650;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
       }
 
@@ -228,9 +230,9 @@
       }
 
       input:focus {
-        border-color: rgba(59, 130, 246, 0.7) !important;
+        border-color: rgba(74, 111, 165, 0.7) !important;
         box-shadow:
-          0 0 0 4px rgba(96, 165, 250, 0.16),
+          0 0 0 4px rgba(203, 213, 225, 0.16),
           0 12px 24px rgba(15, 23, 42, 0.05) !important;
       }
 
@@ -245,9 +247,9 @@
       }
 
       nav button.bg-\[\#9f7026\] {
-        background: #3B82F6 !important;
+        background: #4A6FA5 !important;
         box-shadow:
-          0 10px 24px rgba(59, 130, 246, 0.18),
+          0 10px 24px rgba(74, 111, 165, 0.18),
           inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
       }
 
@@ -292,7 +294,7 @@
         left: 0;
         height: 1.5px;
         border-radius: 999px;
-        background: linear-gradient(90deg, rgba(59, 130, 246, 0), rgba(59, 130, 246, 0.78), rgba(59, 130, 246, 0));
+        background: linear-gradient(90deg, rgba(74, 111, 165, 0), rgba(74, 111, 165, 0.78), rgba(74, 111, 165, 0));
         opacity: 0;
         transform: scaleX(0.68);
         transition:
@@ -337,7 +339,7 @@
 
       .logout-button:hover {
         color: #1F2937;
-        border-color: rgba(59, 130, 246, 0.32);
+        border-color: rgba(63, 95, 140, 0.32);
         background: rgba(255, 255, 255, 0.72);
       }
 
@@ -359,7 +361,7 @@
       }
 
       .soft-panel:hover {
-        border-color: rgba(96, 165, 250, 0.32);
+        border-color: rgba(203, 213, 225, 0.32);
         box-shadow:
           0 18px 48px rgba(15, 23, 42, 0.06),
           inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -388,9 +390,9 @@
 
       .h-2.overflow-hidden.rounded-full > div,
       .h-3.overflow-hidden.rounded-full > div {
-        background: #3B82F6 !important;
+        background: #CBD5E1 !important;
         box-shadow:
-          0 0 12px rgba(96, 165, 250, 0.24),
+          0 0 10px rgba(203, 213, 225, 0.2),
           inset 0 1px 0 rgba(255, 255, 253, 0.45) !important;
       }
 
@@ -416,7 +418,7 @@
         border-radius: 999px;
         background:
           radial-gradient(circle, rgba(255, 255, 255, 0.72) 0 7%, transparent 34%),
-          radial-gradient(circle, rgba(96, 165, 250, 0.055) 0 38%, transparent 70%);
+          radial-gradient(circle, rgba(203, 213, 225, 0.055) 0 38%, transparent 70%);
         filter: blur(3px);
       }
 
@@ -425,7 +427,7 @@
         transform-origin: center;
         filter:
           drop-shadow(0 18px 32px rgba(15, 23, 42, 0.06))
-          drop-shadow(0 0 18px rgba(96, 165, 250, 0.12));
+          drop-shadow(0 0 18px rgba(203, 213, 225, 0.12));
       }
 
       .minimal-ring {
@@ -458,8 +460,7 @@
         transform-origin: center;
       }
 
-      .structure-orbit-layer,
-      .structure-node-track {
+      .structure-orbit-layer {
         transform-box: view-box;
         transform-origin: center;
       }
@@ -475,138 +476,24 @@
       .structure-orbit {
         filter:
           drop-shadow(0 1px 1px rgba(15, 23, 42, 0.12))
-          drop-shadow(0 0 calc(2px + var(--ring-definition) * 5px) rgba(96, 165, 250, 0.2));
+          drop-shadow(0 10px 16px rgba(15, 23, 42, 0.07))
+          drop-shadow(0 0 calc(2px + var(--ring-definition) * 5px) rgba(203, 213, 225, 0.18));
       }
 
       .structure-orbit-glow {
-        filter: blur(1.1px);
-      }
-
-      .spirit-orbit-layer {
-        transform: rotate(-12deg);
-      }
-
-      .soul-orbit-layer {
-        transform: rotate(43deg);
+        filter: blur(2px);
       }
 
       .body-orbit {
-        stroke: #60A5FA;
+        stroke: url(#bodyRingGradient);
       }
 
       .spirit-orbit {
-        stroke: #3B82F6;
+        stroke: url(#spiritRingGradient);
       }
 
       .soul-orbit {
-        stroke: #94A3B8;
-      }
-
-      .body-orbit-layer {
-        animation: steadyOrbitBody 18s ease-in-out infinite;
-      }
-
-      .spirit-orbit-layer {
-        animation: steadyOrbitSpirit 22s ease-in-out infinite;
-      }
-
-      .soul-orbit-layer {
-        animation: steadyOrbitSoul 24s ease-in-out infinite reverse;
-      }
-
-      .structure-node {
-        stroke: rgba(255, 255, 255, 0.72);
-        stroke-width: 1.4;
-      }
-
-      .body-node {
-        fill: #60A5FA;
-        filter:
-          drop-shadow(0 0 5px rgba(96, 165, 250, 0.5))
-          drop-shadow(0 1px 2px rgba(15, 23, 42, 0.16));
-      }
-
-      .spirit-node {
-        fill: #3B82F6;
-        filter:
-          drop-shadow(0 0 5px rgba(59, 130, 246, 0.52))
-          drop-shadow(0 1px 2px rgba(15, 23, 42, 0.16));
-      }
-
-      .soul-node {
-        fill: #94A3B8;
-        filter:
-          drop-shadow(0 0 5px rgba(148, 163, 184, 0.5))
-          drop-shadow(0 1px 2px rgba(15, 23, 42, 0.16));
-      }
-
-      .body-node-track {
-        animation: nodeOrbitBody 16s linear infinite;
-      }
-
-      .spirit-node-track {
-        animation: nodeOrbitSpirit 18s linear infinite;
-      }
-
-      .soul-node-track {
-        animation: nodeOrbitSoul 20s linear infinite reverse;
-      }
-
-      @keyframes steadyOrbitBody {
-        0%,
-        100% {
-          transform: rotate(0deg) scaleX(1);
-        }
-        50% {
-          transform: rotate(1deg) scaleX(1.012);
-        }
-      }
-
-      @keyframes steadyOrbitSpirit {
-        0%,
-        100% {
-          transform: rotate(-12deg) scaleY(1);
-        }
-        50% {
-          transform: rotate(-10deg) scaleY(1.01);
-        }
-      }
-
-      @keyframes steadyOrbitSoul {
-        0%,
-        100% {
-          transform: rotate(43deg) scaleY(1);
-        }
-        50% {
-          transform: rotate(45deg) scaleY(1.01);
-        }
-      }
-
-      @keyframes nodeOrbitBody {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      @keyframes nodeOrbitSpirit {
-        from {
-          transform: rotate(-12deg);
-        }
-        to {
-          transform: rotate(348deg);
-        }
-      }
-
-      @keyframes nodeOrbitSoul {
-        from {
-          transform: rotate(43deg);
-        }
-        to {
-          transform: rotate(403deg);
-        }
+        stroke: url(#soulRingGradient);
       }
 
       @keyframes minimalDrift {
@@ -629,15 +516,7 @@
         filter:
           drop-shadow(0 0 4px rgba(255, 255, 255, 0.95))
           drop-shadow(0 0 calc(5px + var(--light-strength) * 10px) rgba(230, 201, 122, 0.38))
-          drop-shadow(0 0 calc(8px + var(--light-strength) * 18px) rgba(96, 165, 250, 0.16));
-      }
-
-      .cross-source {
-        opacity: calc(0.72 + var(--light-strength) * 0.24);
-        filter:
-          drop-shadow(0 0 5px rgba(255, 255, 255, 1))
-          drop-shadow(0 0 calc(7px + var(--light-strength) * 12px) rgba(230, 201, 122, 0.42))
-          drop-shadow(0 0 calc(10px + var(--light-strength) * 22px) rgba(96, 165, 250, 0.18));
+          drop-shadow(0 0 calc(8px + var(--light-strength) * 18px) rgba(203, 213, 225, 0.16));
       }
 
       .axis-energy {
@@ -650,27 +529,6 @@
       .axis-energy.vertical {
         animation-delay: -1.4s;
         animation-name: axisFlowVertical;
-      }
-
-      .light-particle {
-        opacity: calc(0.12 + var(--light-strength) * 0.36);
-        filter: drop-shadow(0 0 4px rgba(230, 201, 122, 0.34));
-      }
-
-      .particle-right {
-        animation: particleRight 2.8s linear infinite;
-      }
-
-      .particle-left {
-        animation: particleLeft 3.2s linear infinite;
-      }
-
-      .particle-up {
-        animation: particleUp 3s linear infinite;
-      }
-
-      .particle-down {
-        animation: particleDown 3.4s linear infinite;
       }
 
       .orbit-layer {
@@ -691,7 +549,7 @@
       .ring-spirit {
         filter:
           drop-shadow(0 1px 1px rgba(15, 23, 42, 0.14))
-          drop-shadow(0 0 5px rgba(59, 130, 246, 0.36));
+          drop-shadow(0 0 5px rgba(74, 111, 165, 0.36));
       }
 
       .ring-soul {
@@ -703,7 +561,7 @@
       .ring-body {
         filter:
           drop-shadow(0 1px 1px rgba(15, 23, 42, 0.14))
-          drop-shadow(0 0 5px rgba(96, 165, 250, 0.34));
+          drop-shadow(0 0 5px rgba(203, 213, 225, 0.34));
       }
 
       .ring-spirit {
@@ -792,30 +650,6 @@
           opacity: calc(0.38 + var(--light-strength) * 0.56);
           transform: scaleY(1);
         }
-      }
-
-      @keyframes particleRight {
-        from { transform: translateX(0); opacity: 0; }
-        18% { opacity: 0.9; }
-        to { transform: translateX(184px); opacity: 0; }
-      }
-
-      @keyframes particleLeft {
-        from { transform: translateX(0); opacity: 0; }
-        18% { opacity: 0.8; }
-        to { transform: translateX(-184px); opacity: 0; }
-      }
-
-      @keyframes particleUp {
-        from { transform: translateY(0); opacity: 0; }
-        18% { opacity: 0.82; }
-        to { transform: translateY(-184px); opacity: 0; }
-      }
-
-      @keyframes particleDown {
-        from { transform: translateY(0); opacity: 0; }
-        18% { opacity: 0.72; }
-        to { transform: translateY(184px); opacity: 0; }
       }
 
       @keyframes sectionFade {
