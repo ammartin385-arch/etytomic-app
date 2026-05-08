@@ -474,3 +474,80 @@ body {
 .reflection-section textarea {
   resize: vertical;
 }
+
+/* Final alignment/logo polish: keep the model centered and the header mark visible. */
+.alignment-stage svg {
+  transform-origin: 50% 50% !important;
+}
+
+.structure-orbit-system {
+  transform: translate(0, 0) scale(0.96) !important;
+  transform-box: view-box !important;
+  transform-origin: 50% 50% !important;
+}
+
+.structure-orbit-layer,
+.cross-of-light {
+  transform-box: view-box !important;
+  transform-origin: 50% 50% !important;
+}
+
+.cross-of-light {
+  transform: translate(0, 0) !important;
+}
+
+.structure-orbit {
+  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.14)) drop-shadow(0 0 5px rgba(203, 213, 225, 0.2)) !important;
+}
+
+.structure-label {
+  fill: #64748b !important;
+  font-size: 9.5px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.12em !important;
+  opacity: 0.72 !important;
+}
+
+.brand-mark {
+  width: 3rem !important;
+  height: 3rem !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.logo-mark {
+  width: 2.62rem !important;
+  height: 2.62rem !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+}
+
+.logo-light-field {
+  opacity: 1 !important;
+}
+
+.logo-orbit {
+  stroke-width: 1.62 !important;
+  opacity: 0.98 !important;
+}
+
+.logo-orbit-spirit {
+  stroke: #345f8e !important;
+}
+
+.logo-orbit-soul {
+  stroke: #5f7185 !important;
+}
+
+.logo-orbit-body {
+  stroke: #7f8fa2 !important;
+}
+
+.logo-cross path {
+  stroke: #f5dda0 !important;
+  stroke-width: 3.5 !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.98)) drop-shadow(0 0 3px rgba(230, 201, 122, 0.42)) !important;
+}
+
