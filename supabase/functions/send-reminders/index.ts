@@ -1,5 +1,5 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 type ReminderPreference = {
   id: string;
@@ -51,7 +51,11 @@ type LocalDateParts = {
 
 const FROM_EMAIL = Deno.env.get("REMINDER_FROM_EMAIL") || "Etytomic Alignment <reminders@etytomic.com>";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const WINDOW_MINUTES = Number(Deno.env.get("REMINDER_WINDOW_MINUTES") || "60");
+const APP_URL = (Deno.env.get("APP_URL") || "https://etytomic.com").replace(/\/$/, "");
+const EMAIL_LOGO_URL = Deno.env.get("EMAIL_LOGO_URL") || `${APP_URL}/etytomic-email-logo.png`;
 
 const WEEKDAY_NAMES = [
   "Sunday",
@@ -182,6 +186,16 @@ const getForcedReminder = (kind: ReminderKind): DueReminder => {
   };
 };
 
+const getSupabaseAdmin = () => {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Missing Supabase service role environment variables");
+  }
+
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false },
+  });
+};
+
 const sendEmail = async (to: string, reminder: DueReminder) => {
   if (!RESEND_API_KEY) {
     throw new Error("Missing RESEND_API_KEY secret");
@@ -199,6 +213,10 @@ const sendEmail = async (to: string, reminder: DueReminder) => {
       subject: reminder.subject,
       html: `
         <div style="font-family: Inter, Arial, sans-serif; color: #1f2937; line-height: 1.6; max-width: 560px; margin: 0 auto; padding: 24px;">
+          <div style="text-align: center; margin: 0 0 24px;">
+            <img src="${EMAIL_LOGO_URL}" alt="Etytomic Alignment" width="72" style="display: block; width: 72px; max-width: 72px; height: auto; margin: 0 auto 14px;" />
+            <div style="font-family: Georgia, serif; font-size: 20px; font-weight: 700; color: #1f2937; letter-spacing: -0.01em;">Etytomic Alignment</div>
+          </div>
           <h1 style="font-family: Georgia, serif; font-size: 24px; margin: 0 0 12px;">${reminder.title}</h1>
           <p style="font-size: 16px; margin: 0 0 20px;">${reminder.body}</p>
           <p style="font-size: 14px; color: #6b7280; margin: 0;">Etytomic Alignment</p>
@@ -216,15 +234,16 @@ const sendEmail = async (to: string, reminder: DueReminder) => {
 };
 
 export default {
-  fetch: withSupabase({ auth: ["secret"] }, async (req, ctx) => {
+  fetch: async (req) => {
     const now = new Date();
+    const supabaseAdmin = getSupabaseAdmin();
     const url = new URL(req.url);
     const forceKindParam = url.searchParams.get("force");
     const forceKind = ["daily", "weekly", "monthly"].includes(forceKindParam || "")
       ? (forceKindParam as ReminderKind)
       : null;
 
-    const { data: preferences, error: preferencesError } = await ctx.supabaseAdmin
+    const { data: preferences, error: preferencesError } = await supabaseAdmin
       .from("reminder_preferences")
       .select("id,user_id,timezone,daily_enabled,daily_time,weekly_enabled,weekly_day,weekly_time,monthly_enabled,monthly_day,monthly_time")
       .or("daily_enabled.eq.true,weekly_enabled.eq.true,monthly_enabled.eq.true");
@@ -270,7 +289,7 @@ export default {
         continue;
       }
 
-      const { data: userResult, error: userError } = await ctx.supabaseAdmin.auth.admin.getUserById(preference.user_id);
+      const { data: userResult, error: userError } = await supabaseAdmin.auth.admin.getUserById(preference.user_id);
       const email = userResult?.user?.email;
 
       if (userError || !email) {
@@ -284,7 +303,7 @@ export default {
           reminder.kind,
           forceKind ? `${localNow.dateKey}:forced:${now.getTime()}` : localNow.dateKey,
         );
-        const { data: existingLog, error: logLookupError } = await ctx.supabaseAdmin
+        const { data: existingLog, error: logLookupError } = await supabaseAdmin
           .from("reminder_delivery_log")
           .select("id")
           .eq("log_key", logKey)
@@ -302,7 +321,7 @@ export default {
 
         try {
           await sendEmail(email, reminder);
-          await ctx.supabaseAdmin.from("reminder_delivery_log").insert({
+          await supabaseAdmin.from("reminder_delivery_log").insert({
             user_id: preference.user_id,
             reminder_type: reminder.kind,
             log_key: logKey,
@@ -318,5 +337,5 @@ export default {
     }
 
     return Response.json(results);
-  }),
+  },
 };
