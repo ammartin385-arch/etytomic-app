@@ -24,6 +24,24 @@ type DueReminder = {
   body: string;
 };
 
+type ReminderDiagnostic = {
+  user_id: string;
+  timezone: string;
+  local_weekday: string;
+  local_day: number;
+  local_minutes: number;
+  date_key: string;
+  daily_enabled: boolean;
+  daily_time: string | null;
+  weekly_enabled: boolean;
+  weekly_day: string | null;
+  weekly_time: string | null;
+  monthly_enabled: boolean;
+  monthly_day: number | null;
+  monthly_time: string | null;
+  due: ReminderKind[];
+};
+
 type LocalDateParts = {
   weekday: string;
   day: number;
@@ -137,6 +155,33 @@ const getLogKey = (userId: string, kind: ReminderKind, dateKey: string) => {
   return userId + ":" + kind + ":" + dateKey;
 };
 
+const getForcedReminder = (kind: ReminderKind): DueReminder => {
+  if (kind === "weekly") {
+    return {
+      kind: "weekly",
+      title: "Weekly journal reminder",
+      subject: "Your weekly Etytomic reflection",
+      body: "Use this check-in to reflect on what you have noticed since your last entry and where God may be inviting your attention.",
+    };
+  }
+
+  if (kind === "monthly") {
+    return {
+      kind: "monthly",
+      title: "Monthly reassessment reminder",
+      subject: "It may be time for your monthly alignment check-in",
+      body: "Return to the assessment when you are ready. This is not pressure; it is a simple way to notice growth, resistance, and patterns over time.",
+    };
+  }
+
+  return {
+    kind: "daily",
+    title: "Daily journal reminder",
+    subject: "A quiet moment to notice your alignment",
+    body: "Take a few minutes today to notice what is aligned, what feels resistant, and where one faithful step may be clear.",
+  };
+};
+
 const sendEmail = async (to: string, reminder: DueReminder) => {
   if (!RESEND_API_KEY) {
     throw new Error("Missing RESEND_API_KEY secret");
@@ -171,8 +216,13 @@ const sendEmail = async (to: string, reminder: DueReminder) => {
 };
 
 export default {
-  fetch: withSupabase({ auth: ["secret"] }, async (_req, ctx) => {
+  fetch: withSupabase({ auth: ["secret"] }, async (req, ctx) => {
     const now = new Date();
+    const url = new URL(req.url);
+    const forceKindParam = url.searchParams.get("force");
+    const forceKind = ["daily", "weekly", "monthly"].includes(forceKindParam || "")
+      ? (forceKindParam as ReminderKind)
+      : null;
 
     const { data: preferences, error: preferencesError } = await ctx.supabaseAdmin
       .from("reminder_preferences")
@@ -184,12 +234,37 @@ export default {
       return Response.json({ error: preferencesError.message }, { status: 500 });
     }
 
-    const results = { checked: preferences?.length || 0, sent: 0, skipped: 0, errors: [] as string[] };
+    const results = {
+      checked: preferences?.length || 0,
+      sent: 0,
+      skipped: 0,
+      forced: forceKind,
+      diagnostics: [] as ReminderDiagnostic[],
+      errors: [] as string[],
+    };
 
     for (const preference of (preferences || []) as ReminderPreference[]) {
       const timeZone = preference.timezone || "UTC";
       const localNow = getLocalDateParts(now, timeZone);
-      const dueReminders = getDueReminders(preference, localNow);
+      const dueReminders = forceKind ? [getForcedReminder(forceKind)] : getDueReminders(preference, localNow);
+      results.diagnostics.push({
+        user_id: preference.user_id,
+        timezone: timeZone,
+        local_weekday: localNow.weekday,
+        local_day: localNow.day,
+        local_minutes: localNow.minutes,
+        date_key: localNow.dateKey,
+        daily_enabled: !!preference.daily_enabled,
+        daily_time: preference.daily_time,
+        weekly_enabled: !!preference.weekly_enabled,
+        weekly_day: preference.weekly_day,
+        weekly_time: preference.weekly_time,
+        monthly_enabled: !!preference.monthly_enabled,
+        monthly_day: preference.monthly_day,
+        monthly_time: preference.monthly_time,
+        due: dueReminders.map((reminder) => reminder.kind),
+      });
+
       if (!dueReminders.length) {
         results.skipped += 1;
         continue;
@@ -204,7 +279,11 @@ export default {
       }
 
       for (const reminder of dueReminders) {
-        const logKey = getLogKey(preference.user_id, reminder.kind, localNow.dateKey);
+        const logKey = getLogKey(
+          preference.user_id,
+          reminder.kind,
+          forceKind ? `${localNow.dateKey}:forced:${now.getTime()}` : localNow.dateKey,
+        );
         const { data: existingLog, error: logLookupError } = await ctx.supabaseAdmin
           .from("reminder_delivery_log")
           .select("id")
