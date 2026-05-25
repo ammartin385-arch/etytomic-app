@@ -7,7 +7,7 @@ export const beatitudeGuidanceProfiles = {
   },
   "Hunger and thirst for righteousness": {
     reflectionTone: "clear and action-oriented",
-    growthDirection: "Let the next right action become simple and visible. Alignment strengthens when conviction becomes obedience.",
+    growthDirection: "Let the next right action become simple and visible. Alignment strengthens when conviction becomes obedience, and John 8:12 frames this as following Christ into the light of life.",
     action: "Choose one right action today and complete it without delay.",
     promptCategory: "Small action for growth",
   },
@@ -19,7 +19,7 @@ export const beatitudeGuidanceProfiles = {
   },
   "Pure in heart": {
     reflectionTone: "clear and inwardly honest",
-    growthDirection: "Notice what is dividing attention or clouding truth. Growth begins with inward honesty before outward change.",
+    growthDirection: "Notice what is dividing attention or clouding truth. John 1:1-5 grounds clarity in Christ as the Word, life, and light; growth begins with inward honesty before outward change.",
     action: "Name one distraction or divided motive and bring it back to truth.",
     promptCategory: "What am I noticing?",
   },
