@@ -730,3 +730,41 @@ textarea:focus {
   display: block !important;
   max-height: 500px !important;
 }
+
+
+/* Results page polish: keep the structure visual anchored and reduce empty-column dead space. */
+@media (min-width: 1024px) {
+  .glass-panel.flex.flex-col.items-center:has(.alignment-stage) {
+    position: sticky !important;
+    top: 7rem !important;
+    align-self: start !important;
+  }
+}
+
+.glass-panel.flex.flex-col.items-center:has(.alignment-stage) {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.94)) !important;
+  overflow: hidden !important;
+}
+
+.glass-panel.flex.flex-col.items-center:has(.alignment-stage)::after {
+  content: "";
+  position: absolute;
+  inset: auto 12% 0 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74,111,165,0.22), transparent);
+  pointer-events: none;
+}
+
+/* Progress over time: make the data feel reflective instead of raw/debuggy. */
+details.glass-panel summary {
+  cursor: pointer;
+}
+
+details.glass-panel[open] {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+details.glass-panel[open] .soft-panel {
+  background: rgba(255,255,255,0.9) !important;
+  border-color: rgba(203,213,225,0.85) !important;
+}
