@@ -154,8 +154,20 @@ const nextSteps = {
   body: "Choose one small action today and follow through on it.",
 };
 
+const categoryKeys = ["spirit", "soul", "body"];
+const genericSubcategoryNames = new Set(["Spirit", "Soul", "Body"]);
+
 function clampScore(value) {
   return Math.max(0, Math.min(10, Number(value) || 0));
+}
+
+function normalizeCategoryName(categoryName) {
+  const value = String(categoryName || "").toLowerCase();
+  return categoryKeys.includes(value) ? value : null;
+}
+
+function hasSpecificSubcategory(subcategoryName) {
+  return Boolean(subcategoryName && !genericSubcategoryNames.has(String(subcategoryName)));
 }
 
 function getTrend(current, previous) {
@@ -185,6 +197,35 @@ export function getBeatitudeThemeForSubcategory(subcategoryName, categoryName) {
   return subcategoryBeatitudeMap[subcategoryName] || categoryFallbackThemes[categoryName] || "Poor in spirit";
 }
 
+export function selectBeatitudeTheme({ results, subResults } = {}) {
+  const imbalance = getLargestImbalance(results || {});
+  const weakestCategory =
+    normalizeCategoryName(results?.lowestCategory) ||
+    normalizeCategoryName(subResults?.lowest?.category) ||
+    imbalance.lowest ||
+    "body";
+  const subcategoryName = subResults?.lowest?.name;
+  const subcategoryCategory = normalizeCategoryName(subResults?.lowest?.category) || weakestCategory;
+
+  if (hasSpecificSubcategory(subcategoryName) && subcategoryCategory === weakestCategory) {
+    return {
+      title: getBeatitudeThemeForSubcategory(subcategoryName, subcategoryCategory),
+      focusCategory: subcategoryCategory,
+      focusSubcategory: subcategoryName,
+      selectionReason: "subcategory",
+      connectionText: `This Beatitude is connected to your ${labels[subcategoryCategory]} subcategory: ${subcategoryName}.`,
+    };
+  }
+
+  return {
+    title: categoryFallbackThemes[weakestCategory] || "Poor in spirit",
+    focusCategory: weakestCategory,
+    focusSubcategory: labels[weakestCategory],
+    selectionReason: "category",
+    connectionText: `This Beatitude is connected to your lowest area: ${labels[weakestCategory]}.`,
+  };
+}
+
 export function generateDynamicGrowthGuidance({
   results,
   subResults,
@@ -194,11 +235,18 @@ export function generateDynamicGrowthGuidance({
   const total = clampScore(results?.total ?? results?.overallScore);
   const resistance = clampScore(results?.resistance ?? 10 - total);
   const imbalance = getLargestImbalance(results || {});
-  const weakest = results?.lowestCategory || subResults?.lowest?.category || imbalance.lowest || "body";
-  const strongest = subResults?.highest?.category || imbalance.highest || "spirit";
-  const lowestSubcategory = subResults?.lowest?.name || labels[weakest];
-  const mappedThemeTitle = getBeatitudeThemeForSubcategory(lowestSubcategory, weakest);
-  const themeTitle = mappedThemeTitle || beatitudeTheme?.title || "Poor in spirit";
+  const weakest =
+    normalizeCategoryName(results?.lowestCategory) ||
+    normalizeCategoryName(subResults?.lowest?.category) ||
+    imbalance.lowest ||
+    "body";
+  const strongest =
+    normalizeCategoryName(subResults?.highest?.category) ||
+    imbalance.highest ||
+    "spirit";
+  const themeSelection = selectBeatitudeTheme({ results, subResults });
+  const lowestSubcategory = themeSelection.focusSubcategory || subResults?.lowest?.name || labels[weakest];
+  const themeTitle = themeSelection.title || beatitudeTheme?.title || "Poor in spirit";
   const theme = beatitudeGuidanceProfiles[themeTitle] || beatitudeGuidanceProfiles["Poor in spirit"];
   const previous = history?.[1] || null;
   const trend = getTrend(results || {}, previous);
@@ -255,6 +303,10 @@ export function generateDynamicGrowthGuidance({
     largestImbalance: imbalance,
     trend,
     beatitudeThemeTitle: themeTitle,
+    beatitudeFocusCategory: labels[themeSelection.focusCategory] || labels[weakest],
+    beatitudeFocusSubcategory: themeSelection.focusSubcategory,
+    beatitudeSelectionReason: themeSelection.selectionReason,
+    beatitudeConnection: themeSelection.connectionText,
     beatitudeScriptureReference: theme.scriptureReference,
     beatitudeScripture: theme.scripture,
     beatitudeMeaning: theme.meaning,
