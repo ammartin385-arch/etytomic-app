@@ -154,6 +154,183 @@ const nextSteps = {
   body: "Choose one small action today and follow through on it.",
 };
 
+const biblicalGuidanceLibrary = [
+  {
+    title: "Godly Sorrow and Light",
+    categories: ["spirit", "soul"],
+    tags: ["high_resistance", "declining", "strained", "return_to_center", "connection_to_god"],
+    beatitudeThemes: ["Poor in spirit", "Those who mourn", "Perseverance under resistance"],
+    scriptureReferences: ["2 Corinthians 7:10", "Psalm 139:23-24", "Psalm 119:130", "John 8:12"],
+    safeSummary:
+      "God's light does not expose to crush; it exposes so repentance can move toward life.",
+    resistancePattern:
+      "Remorse keeps circling the past, while godly sorrow turns toward God and a faithful next step.",
+    reflectionQuestion: "Where do I need light that leads to repentance rather than regret?",
+    practiceStep:
+      "Name one thing honestly before God and ask what repentance would look like today.",
+  },
+  {
+    title: "Faith Becoming Obedience",
+    categories: ["body", "spirit"],
+    tags: ["conviction_into_practice", "body_low", "active_but_uncentered", "conviction"],
+    beatitudeThemes: ["Hunger and thirst for righteousness", "Pure in heart"],
+    scriptureReferences: ["Hebrews 11:1", "Romans 4:20-22", "James 2:17", "Galatians 5:6"],
+    safeSummary:
+      "Faith is not mere intention; living faith begins to move through love and obedience.",
+    resistancePattern:
+      "Conviction can stay abstract when the next right action is delayed.",
+    reflectionQuestion: "What clear right action has faith already made visible?",
+    practiceStep:
+      "Take one concrete step of obedience before adding a larger plan.",
+  },
+  {
+    title: "Self-Control Under the Spirit",
+    categories: ["body"],
+    tags: ["high_resistance", "discipline", "self_control", "body_low"],
+    beatitudeThemes: ["Meekness", "Hunger and thirst for righteousness"],
+    scriptureReferences: ["Galatians 5:16-24", "Romans 8:13", "1 Timothy 4:7-8"],
+    safeSummary:
+      "Self-control is not self-salvation; it is Spirit-empowered resistance to what weakens love and obedience.",
+    resistancePattern:
+      "What succeeds repeatedly grows stronger; what is brought into the light can be weakened.",
+    reflectionQuestion: "What desire or habit keeps asking for permission?",
+    practiceStep:
+      "Say no once today and choose the Spirit-led alternative.",
+  },
+  {
+    title: "Truth Renewing the Mind",
+    categories: ["soul"],
+    tags: ["soul_low", "truth_becoming_steady", "identity", "thought_life", "emotional_stability"],
+    beatitudeThemes: ["Pure in heart", "Meekness"],
+    scriptureReferences: ["Romans 12:2", "2 Corinthians 10:5", "Psalm 73:21-26"],
+    safeSummary:
+      "The inner life needs truth to become steady, not just thoughts to become quieter.",
+    resistancePattern:
+      "A repeated thought, emotion, or identity story may be trying to lead before truth does.",
+    reflectionQuestion: "What thought or emotion needs to be answered with truth?",
+    practiceStep:
+      "Write one truth from Scripture and let it govern one response today.",
+  },
+  {
+    title: "Mercy and Forgiveness",
+    categories: ["soul"],
+    tags: ["relationships", "bitterness", "high_resistance", "peace"],
+    beatitudeThemes: ["Merciful", "Peacemakers"],
+    scriptureReferences: ["Matthew 5:7", "Matthew 6:14-15", "Ephesians 4:31-32", "1 Corinthians 13:4-7"],
+    safeSummary:
+      "Forgiveness is not denial or the removal of accountability; it is refusing to let bitterness govern the soul.",
+    resistancePattern:
+      "Unforgiveness can keep pain turned inward and make mercy feel impossible.",
+    reflectionQuestion: "Where do I need mercy without pretending the wound did not matter?",
+    practiceStep:
+      "Pray one honest sentence of release and ask God for the next faithful step.",
+  },
+  {
+    title: "Contentment and Desire",
+    categories: ["soul", "body"],
+    tags: ["coveting", "dissatisfaction", "balanced_forming", "identity"],
+    beatitudeThemes: ["Pure in heart", "Meekness"],
+    scriptureReferences: ["Philippians 4:11-13", "Exodus 20:17", "Psalm 73:25-26", "Luke 12:15"],
+    safeSummary:
+      "Contentment is learned by bringing desire under God's sufficiency, not by pretending desire is absent.",
+    resistancePattern:
+      "Comparison and craving can keep the heart fixed on what is missing instead of what is given.",
+    reflectionQuestion:
+      "Where am I despising what God has given because I am focused on what I lack?",
+    practiceStep: "Name one gift with gratitude and one desire to surrender.",
+  },
+  {
+    title: "Lament and Endurance",
+    categories: ["soul", "spirit"],
+    tags: ["declining", "suffering", "strained", "grief", "discouragement"],
+    beatitudeThemes: ["Those who mourn", "Perseverance under resistance"],
+    scriptureReferences: ["Psalm 13", "Psalm 11", "Lamentations 3:21-24", "1 Thessalonians 4:13"],
+    safeSummary:
+      "Biblical lament gives sorrow words before God while still reaching for hope.",
+    resistancePattern:
+      "Pain can turn into isolation, bitterness, or giving up when it has no prayerful place to go.",
+    reflectionQuestion:
+      "What do I need to say honestly to God instead of carrying silently?",
+    practiceStep:
+      "Pray one honest lament and name one truth you can still lean on.",
+  },
+  {
+    title: "Peace Under Pressure",
+    categories: ["soul"],
+    tags: ["relationships", "tension", "peace", "high_resistance"],
+    beatitudeThemes: ["Peacemakers", "Merciful", "Meekness"],
+    scriptureReferences: ["John 14:27", "John 20:19-21", "Ephesians 6:10-18"],
+    safeSummary:
+      "Peace is not avoidance; it is receiving Christ's peace and responding from it under pressure.",
+    resistancePattern:
+      "Tension may invite reaction, withdrawal, or control instead of truthful peace.",
+    reflectionQuestion:
+      "Where is peace asking for a truthful and faithful response?",
+    practiceStep:
+      "Pause before one response and choose peace without avoiding truth.",
+  },
+  {
+    title: "Work, Service, and Gifts",
+    categories: ["body"],
+    tags: ["body_low", "follow_through", "discipline", "service"],
+    beatitudeThemes: ["Hunger and thirst for righteousness"],
+    scriptureReferences: ["Genesis 2:15", "Colossians 3:23", "1 Thessalonians 4:11-12", "1 Peter 4:10"],
+    safeSummary:
+      "Work and service can become worship when they are offered to God with love and integrity.",
+    resistancePattern:
+      "Avoided work, unused gifts, or poor follow-through can keep conviction from becoming contribution.",
+    reflectionQuestion:
+      "What contribution is God asking me to make faithfully with what I have?",
+    practiceStep:
+      "Complete one useful task today with care, as service to the Lord.",
+  },
+  {
+    title: "Discernment Through the Word",
+    categories: ["spirit", "soul"],
+    tags: ["confusion", "truth", "spirit_low", "soul_low", "connection_to_god"],
+    beatitudeThemes: ["Pure in heart", "Poor in spirit"],
+    scriptureReferences: ["1 Thessalonians 5:19-22", "2 Peter 1:20-21", "Romans 10:17", "Luke 8:18"],
+    safeSummary:
+      "Growth requires testing voices by Scripture and learning to receive God's Word with faith.",
+    resistancePattern:
+      "The wrong voices can make confusion feel spiritual while pulling attention away from Christ.",
+    reflectionQuestion:
+      "What voice or input needs to be tested by God's Word?",
+    practiceStep:
+      "Read one Scripture slowly and ask what should be received, resisted, or obeyed.",
+  },
+  {
+    title: "Love as the Fruit",
+    categories: ["soul", "body"],
+    tags: ["relationships", "service", "active_but_uncentered", "balanced_forming"],
+    beatitudeThemes: ["Merciful", "Peacemakers", "Meekness"],
+    scriptureReferences: ["1 Corinthians 13:1-7", "Galatians 5:22-23", "John 13:34-35"],
+    safeSummary:
+      "The deepest fruit of alignment is love formed by Christ, not impressive activity without love.",
+    resistancePattern:
+      "Service, worship, or discipline can lose alignment when love is absent or self-protection leads.",
+    reflectionQuestion:
+      "Where does love need to become more patient, humble, or generous?",
+    practiceStep:
+      "Choose one person and practice love in a concrete, costly, ordinary way.",
+  },
+  {
+    title: "Hope in Resurrection",
+    categories: ["spirit", "soul"],
+    tags: ["suffering", "discouragement", "declining", "perseverance"],
+    beatitudeThemes: ["Those who mourn", "Perseverance under resistance"],
+    scriptureReferences: ["1 Peter 1:3-7", "1 Thessalonians 4:13-18", "Revelation 7:9-17", "1 Corinthians 15"],
+    safeSummary:
+      "Christian hope does not deny grief; it places grief inside Christ's resurrection promise.",
+    resistancePattern:
+      "Discouragement can shrink vision until present pain feels like the whole story.",
+    reflectionQuestion:
+      "Where do I need hope that is deeper than my current circumstances?",
+    practiceStep:
+      "Name one future promise of Christ and one faithful response for today.",
+  },
+];
+
 const categoryKeys = ["spirit", "soul", "body"];
 const genericSubcategoryNames = new Set(["Spirit", "Soul", "Body"]);
 
@@ -367,6 +544,62 @@ function getComplexScorePattern({ total, resistance, imbalance, weakest, stronge
   };
 }
 
+function getBiblicalGuidanceTags({
+  total,
+  resistance,
+  imbalance,
+  weakest,
+  trend,
+  lowestSubcategory,
+  scorePatternTitle,
+}) {
+  const tags = new Set([weakest, `${weakest}_low`]);
+  const subcategory = String(lowestSubcategory || "").toLowerCase();
+  const pattern = String(scorePatternTitle || "").toLowerCase();
+
+  if (getScoreBand(total) === "strained") tags.add("strained");
+  if (resistance >= 6) tags.add("high_resistance");
+  else if (resistance >= 3) tags.add("moderate_resistance");
+  else tags.add("low_resistance");
+  if (trend && trend !== "new") tags.add(trend);
+  if ((imbalance?.spread || 0) < 1.2) tags.add("balanced_forming");
+  if (subcategory.includes("relationship")) tags.add("relationships");
+  if (subcategory.includes("discipline")) tags.add("discipline");
+  if (subcategory.includes("self-control")) tags.add("self_control");
+  if (subcategory.includes("thought")) tags.add("thought_life");
+  if (subcategory.includes("identity")) tags.add("identity");
+  if (subcategory.includes("emotional")) tags.add("emotional_stability");
+  if (subcategory.includes("connection")) tags.add("connection_to_god");
+  if (subcategory.includes("conviction")) tags.add("conviction");
+  if (pattern.includes("uncentered")) tags.add("active_but_uncentered");
+  if (pattern.includes("conviction")) tags.add("conviction_into_practice");
+  if (pattern.includes("truth")) tags.add("truth_becoming_steady");
+  if (pattern.includes("whole")) tags.add("balanced_forming");
+  if (pattern.includes("return")) tags.add("return_to_center");
+  if (pattern.includes("rebuild")) tags.add("strained");
+
+  return [...tags];
+}
+
+function selectBiblicalGuidanceEntries(context) {
+  const tags = getBiblicalGuidanceTags(context);
+  const scored = biblicalGuidanceLibrary
+    .map((entry, index) => {
+      let score = 0;
+      if (entry.categories?.includes(context.weakest)) score += 4;
+      if (entry.categories?.includes(context.strongest)) score += 1;
+      if (entry.beatitudeThemes?.includes(context.themeTitle)) score += 3;
+      for (const tag of entry.tags || []) {
+        if (tags.includes(tag)) score += 2;
+      }
+      return { entry, score, index };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || a.index - b.index);
+
+  return scored.slice(0, 3).map(({ entry }) => entry);
+}
+
 export function getBeatitudeThemeForSubcategory(subcategoryName, categoryName) {
   return subcategoryBeatitudeMap[subcategoryName] || categoryFallbackThemes[categoryName] || "Poor in spirit";
 }
@@ -425,6 +658,18 @@ export function generateDynamicGrowthGuidance({
   const previous = history?.[1] || null;
   const trend = getTrend(results || {}, previous);
   const scorePattern = getComplexScorePattern({ total, resistance, imbalance, weakest, strongest, trend });
+  const biblicalGuidance = selectBiblicalGuidanceEntries({
+    total,
+    resistance,
+    imbalance,
+    weakest,
+    strongest,
+    trend,
+    themeTitle,
+    lowestSubcategory,
+    scorePatternTitle: scorePattern.title,
+  });
+  const primaryBiblicalGuidance = biblicalGuidance[0] || null;
 
   let alignmentSummary =
     total >= 7
@@ -483,6 +728,11 @@ export function generateDynamicGrowthGuidance({
     trend,
     scorePatternTitle: scorePattern.title,
     scorePatternWhy: scorePattern.whyPathDetail,
+    biblicalGuidance,
+    primaryBiblicalGuidance,
+    biblicalScriptureReferences: primaryBiblicalGuidance?.scriptureReferences || [],
+    biblicalReflectionQuestion: primaryBiblicalGuidance?.reflectionQuestion,
+    biblicalPracticeStep: primaryBiblicalGuidance?.practiceStep,
     beatitudeThemeTitle: themeTitle,
     beatitudeFocusCategory: labels[themeSelection.focusCategory] || labels[weakest],
     beatitudeFocusSubcategory: themeSelection.focusSubcategory,
