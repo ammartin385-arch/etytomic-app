@@ -1,5 +1,6 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
+import { getEmailLogoUrl } from "../_shared/brand.ts";
 
 type ReminderPreference = {
   id: string;
@@ -55,7 +56,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const WINDOW_MINUTES = Number(Deno.env.get("REMINDER_WINDOW_MINUTES") || "60");
 const APP_URL = (Deno.env.get("APP_URL") || "https://etytomic.com").replace(/\/$/, "");
-const EMAIL_LOGO_URL = Deno.env.get("EMAIL_LOGO_URL") || `${APP_URL}/etytomic-email-logo.png`;
+const EMAIL_LOGO_URL = getEmailLogoUrl(APP_URL);
 
 const WEEKDAY_NAMES = [
   "Sunday",
@@ -214,7 +215,7 @@ const sendEmail = async (to: string, reminder: DueReminder) => {
       html: `
         <div style="font-family: Inter, Arial, sans-serif; color: #1f2937; line-height: 1.6; max-width: 560px; margin: 0 auto; padding: 24px;">
           <div style="text-align: center; margin: 0 0 24px;">
-            <img src="${EMAIL_LOGO_URL}" alt="Etytomic Alignment" width="72" style="display: block; width: 72px; max-width: 72px; height: auto; margin: 0 auto 14px;" />
+            <img src="${EMAIL_LOGO_URL}" alt="Etytomic Alignment" width="220" style="display: block; width: 220px; max-width: 100%; height: auto; margin: 0 auto 14px;" />
             <div style="font-family: Georgia, serif; font-size: 20px; font-weight: 700; color: #1f2937; letter-spacing: -0.01em;">Etytomic Alignment</div>
           </div>
           <h1 style="font-family: Georgia, serif; font-size: 24px; margin: 0 0 12px;">${reminder.title}</h1>
