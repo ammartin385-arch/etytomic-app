@@ -193,6 +193,180 @@ function getLargestImbalance(results) {
   };
 }
 
+function getScoreBand(value) {
+  const score = clampScore(value);
+  if (score >= 7) return "strong";
+  if (score >= 4) return "forming";
+  return "strained";
+}
+
+function getComplexScorePattern({ total, resistance, imbalance, weakest, strongest, trend }) {
+  const weakestLabel = labels[weakest] || "your growth area";
+  const strongestLabel = labels[strongest] || "your strongest area";
+  const totalBand = getScoreBand(total);
+  const resistanceBand = resistance >= 6 ? "high" : resistance >= 3 ? "moderate" : "low";
+  const balanced = imbalance.spread < 1.2;
+  const sharpImbalance = imbalance.spread >= 2.5;
+
+  if (trend === "declining") {
+    return {
+      title: "Return to Center",
+      alignmentSummary:
+        "Your recent movement suggests something is pulling alignment away from the center. This is not a verdict; it is a clear place to return with honesty and without shame.",
+      growthFocus: `${weakestLabel} needs attention first because it is carrying the clearest loss of steadiness.`,
+      resistanceInsight:
+        "Resistance is showing up as drift. Notice what has become harder to practice, easier to avoid, or quicker to justify.",
+      suggestedNextStep: nextSteps[weakest],
+      growthDirection:
+        "Do not try to repair everything at once. Return to the center, name what changed, and take one faithful step in the weakest area.",
+      whyPathDetail:
+        "The path is shaped by recent decline, so the guidance emphasizes return, clarity, and one concrete response rather than intensity.",
+    };
+  }
+
+  if (totalBand === "strained" && resistanceBand === "high") {
+    return {
+      title: "Rebuild from the Center",
+      alignmentSummary:
+        "Your scores show low alignment with strong resistance. Growth should begin gently and centrally, not with pressure to fix every area at once.",
+      growthFocus: `${weakestLabel} is the first place to rebuild because it is carrying the strongest resistance signal.`,
+      resistanceInsight:
+        "Resistance is loud enough that it may feel like identity. Treat it instead as a signal showing where light and support are needed.",
+      suggestedNextStep: nextSteps[weakest],
+      growthDirection:
+        "Begin with one small act of return. Let faithfulness become visible before trying to measure major change.",
+      whyPathDetail:
+        "The path is selected around high resistance and low alignment, so the next step stays small, concrete, and restorative.",
+    };
+  }
+
+  if (strongest === "body" && weakest !== "body") {
+    return {
+      title: "Active but Uncentered",
+      alignmentSummary:
+        "Your outward life may be functioning better than the inner or spiritual center. Growth begins by letting action flow from truth instead of performance.",
+      growthFocus: `${weakestLabel} needs to be brought back under the center so outward action is not carrying more than it should.`,
+      resistanceInsight:
+        "Resistance may hide inside productivity, responsibility, or visible follow-through while the deeper life needs attention.",
+      suggestedNextStep:
+        weakest === "spirit"
+          ? "Pause before one responsibility today and bring it to God before acting."
+          : "Name one thought or emotion underneath your activity and bring it back to truth.",
+      growthDirection:
+        "Let the inner source be strengthened before adding more output. Alignment deepens when action follows from the center.",
+      whyPathDetail:
+        "The path is shaped by strong outward action paired with an inner or spiritual growth area.",
+    };
+  }
+
+  if (strongest === "spirit" && weakest === "body" && sharpImbalance) {
+    return {
+      title: "Conviction into Practice",
+      alignmentSummary:
+        "Your spiritual center shows strength, but the body score suggests conviction may not yet be becoming steady action.",
+      growthFocus:
+        "Body is the growth area because the next season is about making what is true visible through one repeated practice.",
+      resistanceInsight:
+        "Resistance may appear as delay, inconsistency, fatigue, or knowing the next right thing without embodying it.",
+      suggestedNextStep: "Choose one small embodied practice today and complete it before adding another goal.",
+      growthDirection:
+        "Let conviction become visible through one faithful rhythm. Small obedience will carry more weight than a large plan.",
+      whyPathDetail:
+        "The path is selected because Spirit is comparatively strong while Body is carrying the clearest gap.",
+    };
+  }
+
+  if (weakest === "soul") {
+    return {
+      title: "Truth Becoming Steady",
+      alignmentSummary:
+        "Your inner life is carrying the clearest growth signal. The work is not only to think differently, but to let truth become steady in identity, emotion, and response.",
+      growthFocus:
+        "Soul is the focus because thoughts, emotions, or identity may be influencing the rest of the structure.",
+      resistanceInsight:
+        "Resistance may show up as rumination, emotional reactivity, comparison, confusion, or a story about yourself that is not fully true.",
+      suggestedNextStep: nextSteps.soul,
+      growthDirection:
+        "Bring one repeated thought or emotional pattern into God's light, then answer it with truth.",
+      whyPathDetail:
+        "The path is selected because the inner life is carrying the clearest signal for growth.",
+    };
+  }
+
+  if (balanced && totalBand === "strong" && resistanceBand === "low") {
+    return {
+      title: "Guard the Rhythm",
+      alignmentSummary:
+        "Your scores show a relatively steady structure. The next work is protection and attentiveness, not urgency.",
+      growthFocus:
+        "No single area is sharply out of alignment, so focus on guarding the practices that keep the center clear.",
+      resistanceInsight:
+        "Resistance is low. Watch for subtle drift rather than obvious breakdown.",
+      suggestedNextStep:
+        "Choose one practice that is helping you stay centered and protect it this week.",
+      growthDirection:
+        "Keep returning to the habits that make alignment sustainable. Growth here is faithfulness over time.",
+      whyPathDetail:
+        "The path is selected to protect alignment rather than respond to an urgent imbalance.",
+    };
+  }
+
+  if (balanced && totalBand !== "strong") {
+    return {
+      title: "Whole Structure Attention",
+      alignmentSummary:
+        "Your scores are close together, which means growth may need a whole-structure rhythm rather than a single dramatic correction.",
+      growthFocus:
+        "Start with the weakest area, but keep the practice simple enough to support Spirit, Soul, and Body together.",
+      resistanceInsight:
+        "Resistance may be broad instead of concentrated. Look for the repeated pattern that affects more than one area.",
+      suggestedNextStep: nextSteps[weakest],
+      growthDirection:
+        "Choose one small practice that helps the whole structure return toward the center.",
+      whyPathDetail:
+        "The path is selected because the scores are close together, so guidance emphasizes a simple rhythm across the whole structure.",
+    };
+  }
+
+  if (trend === "improving") {
+    return {
+      title: "Strengthen What Is Working",
+      alignmentSummary:
+        "Your recent movement is encouraging. Growth now means strengthening what is already helping you return toward alignment.",
+      growthFocus: `${weakestLabel} is still the focus, but ${strongestLabel} may help support the next faithful step.`,
+      resistanceInsight:
+        "Resistance is not gone, but it is becoming easier to name and answer with practice.",
+      suggestedNextStep: nextSteps[weakest],
+      growthDirection:
+        "Repeat the practice that is bearing fruit, then connect it to one concrete step in the growth area.",
+      whyPathDetail:
+        "The path is selected to continue recent movement while still addressing the weakest area.",
+    };
+  }
+
+  return {
+    title: "Focused Growth",
+    alignmentSummary:
+      totalBand === "strong"
+        ? "Your alignment shows real strength, with one area asking for focused attention."
+        : "Your results show both alignment and resistance. Growth will come through steady attention, not pressure.",
+    growthFocus: sharpImbalance
+      ? `${weakestLabel} is carrying the greatest resistance compared with ${strongestLabel}. Focus there first.`
+      : `${weakestLabel} is the clearest focus area for this check-in.`,
+    resistanceInsight:
+      resistanceBand === "high"
+        ? "Resistance is high enough to notice clearly. Treat it as a signal to return attention to the center, not as a verdict."
+        : resistanceBand === "moderate"
+          ? "Resistance is present, but workable. Small faithful steps will matter more than intensity."
+          : "Resistance is low. Protect the practices that are keeping alignment clear.",
+    suggestedNextStep: nextSteps[weakest],
+    growthDirection:
+      "Let the next faithful response be specific enough to practice today and small enough to repeat.",
+    whyPathDetail:
+      "The path is selected from the clearest growth area, resistance level, score spread, and recent movement.",
+  };
+}
+
 export function getBeatitudeThemeForSubcategory(subcategoryName, categoryName) {
   return subcategoryBeatitudeMap[subcategoryName] || categoryFallbackThemes[categoryName] || "Poor in spirit";
 }
@@ -250,6 +424,7 @@ export function generateDynamicGrowthGuidance({
   const theme = beatitudeGuidanceProfiles[themeTitle] || beatitudeGuidanceProfiles["Poor in spirit"];
   const previous = history?.[1] || null;
   const trend = getTrend(results || {}, previous);
+  const scorePattern = getComplexScorePattern({ total, resistance, imbalance, weakest, strongest, trend });
 
   let alignmentSummary =
     total >= 7
@@ -277,31 +452,37 @@ export function generateDynamicGrowthGuidance({
     alignmentSummary += " A steady pattern can still hold hidden growth, but it may need a more intentional next step.";
   }
 
+  alignmentSummary = scorePattern.alignmentSummary || alignmentSummary;
+
   const growthFocus =
-    imbalance.spread >= 2
+    scorePattern.growthFocus ||
+    (imbalance.spread >= 2
       ? `${labels[weakest]} is carrying the greatest resistance compared with ${labels[strongest]}. Focus there first.`
-      : `${labels[weakest]} is the clearest focus area for this check-in.`;
+      : `${labels[weakest]} is the clearest focus area for this check-in.`);
 
   const resistanceInsight =
-    resistance >= 6
+    scorePattern.resistanceInsight ||
+    (resistance >= 6
       ? "Resistance is high enough to notice clearly. Treat it as a signal to return attention to the center, not as a verdict."
       : resistance >= 3
         ? "Resistance is present, but workable. Small faithful steps will matter more than intensity."
-        : "Resistance is low. Protect the practices that are keeping alignment clear.";
+        : "Resistance is low. Protect the practices that are keeping alignment clear.");
 
   return {
     alignmentSummary,
     growthFocus,
     resistanceInsight,
-    suggestedNextStep: theme.action || nextSteps[weakest],
+    suggestedNextStep: scorePattern.suggestedNextStep || theme.action || nextSteps[weakest],
     reflectionTone: trend === "declining" ? "grounding and corrective without shame" : theme.reflectionTone,
     recommendedPromptCategory: theme.promptCategory,
-    growthDirection: theme.growthDirection,
+    growthDirection: scorePattern.growthDirection || theme.growthDirection,
     weakestArea: labels[weakest],
     strongestArea: labels[strongest],
     lowestSubcategory,
     largestImbalance: imbalance,
     trend,
+    scorePatternTitle: scorePattern.title,
+    scorePatternWhy: scorePattern.whyPathDetail,
     beatitudeThemeTitle: themeTitle,
     beatitudeFocusCategory: labels[themeSelection.focusCategory] || labels[weakest],
     beatitudeFocusSubcategory: themeSelection.focusSubcategory,
