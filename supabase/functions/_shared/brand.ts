@@ -1,6 +1,5 @@
 export const BRAND_ASSETS = {
-  emailLogoPath: "/brand/logo-horizontal.png",
+  emailLogoUrl: "https://etytomic.com/brand/logo-horizontal.png?v=20260609",
 };
 
-export const getEmailLogoUrl = (appUrl: string) =>
-  Deno.env.get("EMAIL_LOGO_URL") || `${appUrl}${BRAND_ASSETS.emailLogoPath}`;
+export const getEmailLogoUrl = (_appUrl: string) => BRAND_ASSETS.emailLogoUrl;
