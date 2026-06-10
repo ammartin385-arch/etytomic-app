@@ -1,5 +1,5 @@
 export const BRAND_ASSETS = {
-  emailLogoUrl: "https://etytomic.com/brand/logo-horizontal.png?v=20260609",
+  emailLogoUrl: "https://etytomic.com/brand/email-logo.png?v=20260610",
 };
 
 export const getEmailLogoUrl = (_appUrl: string) => BRAND_ASSETS.emailLogoUrl;
