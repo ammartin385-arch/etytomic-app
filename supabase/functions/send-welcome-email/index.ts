@@ -38,8 +38,8 @@ const sendWelcomeEmail = async (email: string, displayName?: string) => {
       subject: "Your Etytomic Alignment account is ready",
       html: `
         <div style="font-family: Inter, Arial, sans-serif; color: #1f2937; line-height: 1.6; max-width: 560px; margin: 0 auto; padding: 24px;">
-          <div style="text-align: center; margin: 0 0 24px;">
-            <img src="${EMAIL_LOGO_URL}" alt="" width="260" style="display: block; width: 260px; max-width: 100%; height: auto; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
+          <div style="text-align: center; padding: 24px 0; margin: 0;">
+            <img src="${EMAIL_LOGO_URL}" alt="" width="320" style="display: block; width: 100%; max-width: 320px; height: auto; margin: 0 auto; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic;" />
           </div>
           <h1 style="font-family: Georgia, serif; font-size: 24px; margin: 0 0 12px;">Account created</h1>
           <p style="font-size: 16px; margin: 0 0 14px;">${greeting}</p>
