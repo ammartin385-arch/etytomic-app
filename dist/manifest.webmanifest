@@ -1,0 +1,15 @@
+{
+  "name": "Etytomic Alignment",
+  "short_name": "Etytomic",
+  "icons": [
+    {
+      "src": "/brand/app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#F9FAFB",
+  "background_color": "#F9FAFB",
+  "display": "standalone"
+}
