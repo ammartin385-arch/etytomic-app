@@ -1,6 +1,6 @@
 export const BRAND_ASSETS = Object.freeze({
   mark: "/brand/logo-mark.png",
-  horizontal: "/brand/logo-horizontal.svg",
+  horizontal: "/brand/logo-horizontal-clean.png",
   stacked: "/brand/logo-stacked.png",
   emailLogo: "/brand/email-logo.png",
   appIcon: "/brand/app-icon.png",
