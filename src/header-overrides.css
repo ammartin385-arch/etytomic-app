@@ -768,3 +768,9 @@ details.glass-panel[open] .soft-panel {
   background: rgba(255,255,255,0.9) !important;
   border-color: rgba(203,213,225,0.85) !important;
 }
+
+/* Welcome/Login should only show the horizontal brand logo. */
+.welcome-login-hero img[data-logo-variant="stacked"],
+.welcome-login-hero img[src*="logo-stacked"] {
+  display: none !important;
+}
