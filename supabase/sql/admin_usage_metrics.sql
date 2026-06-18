@@ -33,7 +33,7 @@ begin
   ),
   assessment_daily as (
     select created_at::date as day, count(*)::integer as count
-    from public.assessment_history
+    from public.assessment_results
     where created_at >= current_date - interval '29 days'
     group by created_at::date
   ),
@@ -69,14 +69,14 @@ begin
     'total_registered_users',
       (select count(*) from public.profiles),
     'unique_assessment_users',
-      (select count(distinct user_id) from public.assessment_history),
+      (select count(distinct user_id) from public.assessment_results),
     'total_assessments',
-      (select count(*) from public.assessment_history),
+      (select count(*) from public.assessment_results),
     'assessments_last_7_days',
-      (select count(*) from public.assessment_history
+      (select count(*) from public.assessment_results
        where created_at >= now() - interval '7 days'),
     'assessments_last_30_days',
-      (select count(*) from public.assessment_history
+      (select count(*) from public.assessment_results
        where created_at >= now() - interval '30 days'),
     'premium_active_users',
       (select count(*) from public.profiles
