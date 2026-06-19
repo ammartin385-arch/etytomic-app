@@ -154,6 +154,160 @@ const nextSteps = {
   body: "Choose one small action today and follow through on it.",
 };
 
+export const THOUGHT_LIFE_PROFILE_VERSION = 1;
+
+export const thoughtLifeGuidanceProfiles = {
+  default: {
+    focus: "Renewing the Mind",
+    pattern: "Letting a thought move unchallenged",
+    scripture: "Romans 12:2; 2 Corinthians 10:5",
+    scriptureMeaning:
+      "Scripture calls the mind to renewal and teaches that thoughts can be taken captive. This area targets the thoughts that repeatedly ask for agreement.",
+    growthReason:
+      "A thought that succeeds often becomes a pathway. Naming it and answering it with truth weakens its pull.",
+    beginnerHint:
+      "Read the passage and identify one repeated thought you should stop treating as automatically true.",
+    scriptureQuestion: "What thought keeps returning, and where is it trying to take me?",
+    watch: "A repeated thought that asks for agreement and then pulls you off center.",
+    step: "Take one recurring thought captive and answer it with truth.",
+    prompt: "What thought keeps returning, and where is it trying to take me?",
+  },
+  trust_instead_of_anxiety: {
+    focus: "Trust Instead of Anxiety",
+    pattern: "Fear rehearsing possible outcomes before truth has the final word",
+    scripture: "Philippians 4:6-8; Isaiah 26:3",
+    scriptureMeaning:
+      "Scripture invites anxious thoughts into prayer and returns attention to what is true. Peace grows as the mind learns to rest in God's character rather than repeatedly carrying every possible outcome.",
+    growthReason:
+      "Trust becomes steadier when fear is named honestly and redirected toward prayer, truth, and God's faithful care.",
+    beginnerHint:
+      "Read the passages slowly and notice the movement from anxious rehearsal toward prayer, truth, and a mind stayed on God.",
+    scriptureQuestion:
+      "What outcome am I rehearsing, and what truth about God can hold my attention instead?",
+    watch:
+      "Repeatedly imagining what could go wrong or treating uncertainty as if it were already a conclusion.",
+    step:
+      "Turn one anxious thought into a specific prayer, then name one true and trustworthy thing to hold in mind.",
+    prompt: "What am I carrying in my thoughts that I can bring to God in prayer?",
+  },
+  taking_thoughts_captive: {
+    focus: "Taking Thoughts Captive",
+    pattern: "A recurring thought gaining influence because it has not been examined",
+    scripture: "2 Corinthians 10:5; Colossians 3:2",
+    scriptureMeaning:
+      "Scripture teaches that thoughts can be examined and brought under Christ rather than accepted automatically. Setting the mind on what is above gives direction without denying what is difficult.",
+    growthReason:
+      "A thought loses some of its power when it is named, tested by truth, and no longer allowed to direct the next response unchallenged.",
+    beginnerHint:
+      "Choose one recurring thought and ask whether it agrees with the character and truth of Christ.",
+    scriptureQuestion: "What thought has been directing me without first being tested by truth?",
+    watch:
+      "Treating a repeated thought as authoritative simply because it feels familiar or urgent.",
+    step:
+      "Write down one recurring thought, test it against Scripture, and replace it with one truthful response.",
+    prompt: "Which thought needs to be brought under the truth of Christ today?",
+  },
+  mental_distraction: {
+    focus: "Returning Attention to What Is True",
+    pattern: "Scattered attention making it difficult to remain with what is true and life-giving",
+    scripture: "Colossians 3:2; Philippians 4:8",
+    scriptureMeaning:
+      "Scripture gives the mind a direction. Returning attention to what is true, honorable, and centered on Christ is a gentle repeated practice, not a demand for perfect concentration.",
+    growthReason:
+      "Clarity grows when attention is deliberately returned instead of being carried by every interruption, negative loop, or competing input.",
+    beginnerHint:
+      "Notice one source of mental noise and use the passages as a simple place to return your attention.",
+    scriptureQuestion:
+      "What is repeatedly scattering my attention, and what deserves my focus instead?",
+    watch:
+      "Moving rapidly between inputs, losing the thread of what matters, or feeding mental noise when quiet attention is needed.",
+    step:
+      "Remove one distraction for ten minutes and give that time to one true, worthwhile focus.",
+    prompt: "Where does my attention keep going, and what would help me return it to truth?",
+  },
+  comparison_or_performance: {
+    focus: "Freedom from Comparison and Performance",
+    pattern: "Thoughts measuring worth through comparison, approval, or the pressure to prove",
+    scripture: "Romans 12:2; Matthew 6:25-34",
+    scriptureMeaning:
+      "Scripture invites the mind out of the patterns that shape worth through pressure and comparison. Jesus redirects attention from anxious striving toward the Father's care and the faithful work of today.",
+    growthReason:
+      "Inner steadiness grows when worth is received from God rather than continually measured against another person, expectation, or image.",
+    beginnerHint:
+      "Ask whether a thought is helping you receive truth or pressuring you to prove something about yourself.",
+    scriptureQuestion: "Where am I measuring myself instead of receiving what is true from God?",
+    watch:
+      "Mentally ranking, proving, rehearsing how you appear, or letting another person's path define your worth.",
+    step:
+      "Name one comparison or performance thought and answer it with one truth about your identity and today's faithful responsibility.",
+    prompt:
+      "What am I trying to prove, and what becomes possible if I receive my worth from God instead?",
+  },
+};
+
+export function selectThoughtLifeGuidanceProfile(answers, subResults) {
+  if (subResults?.lowest?.name !== "Thought Life") return null;
+
+  const values = [0, 1, 2, 3].map((index) => Number(answers?.[`4-${index}`]));
+  let profileKey = "default";
+
+  if (values.every(Number.isFinite)) {
+    const [truthGrounding, refocusing, mentalClarity, thoughtDirection] = values;
+    const distractionAverage = (refocusing + mentalClarity) / 2;
+    const directionAverage = (truthGrounding + thoughtDirection) / 2;
+
+    if (
+      truthGrounding <= 5 &&
+      thoughtDirection <= 5 &&
+      distractionAverage >= directionAverage + 1.5
+    ) {
+      profileKey = "comparison_or_performance";
+    } else if (
+      refocusing <= 5 &&
+      mentalClarity <= 5 &&
+      distractionAverage <= directionAverage - 1
+    ) {
+      profileKey = "mental_distraction";
+    } else if (
+      truthGrounding <= 4 &&
+      truthGrounding <= Math.min(refocusing, mentalClarity, thoughtDirection) - 1
+    ) {
+      profileKey = "trust_instead_of_anxiety";
+    } else if (
+      thoughtDirection <= 4 &&
+      thoughtDirection <= Math.min(truthGrounding, refocusing, mentalClarity) - 1
+    ) {
+      profileKey = "taking_thoughts_captive";
+    }
+  }
+
+  return {
+    selectedSubscore: "Thought Life",
+    profileKey,
+    profileVersion: THOUGHT_LIFE_PROFILE_VERSION,
+    guidance: thoughtLifeGuidanceProfiles[profileKey] || thoughtLifeGuidanceProfiles.default,
+  };
+}
+
+export function resolveStoredThoughtLifeGuidanceProfile(result) {
+  if (
+    result?.selectedSubscore !== "Thought Life" ||
+    Number(result?.profileVersion) !== THOUGHT_LIFE_PROFILE_VERSION
+  ) {
+    return null;
+  }
+
+  const profile = thoughtLifeGuidanceProfiles[result.profileKey];
+  return profile
+    ? {
+        selectedSubscore: "Thought Life",
+        profileKey: result.profileKey,
+        profileVersion: THOUGHT_LIFE_PROFILE_VERSION,
+        guidance: profile,
+      }
+    : null;
+}
+
 const biblicalGuidanceLibrary = [
   {
     title: "Godly Sorrow and Light",

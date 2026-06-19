@@ -30,4 +30,4 @@ create policy "Users can delete their assessment results"
   using (auth.uid() = user_id);
 
 comment on column public.assessment_results.score_snapshot is
-  'Versioned aggregate score snapshot containing overall, domain, resistance, and 11 subscore values. Does not contain assessment answers.';
+  'Versioned aggregate score snapshot containing overall, domain, resistance, 11 subscore values, and selected guidance profile metadata. Does not contain assessment answers.';
