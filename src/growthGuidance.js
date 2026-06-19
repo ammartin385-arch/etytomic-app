@@ -212,6 +212,26 @@ const biblicalGuidanceLibrary = [
       "Write one truth from Scripture and let it govern one response today.",
   },
   {
+    title: "Friendship Requires Intentionality",
+    categories: ["soul"],
+    tags: ["relationships", "peace"],
+    beatitudeThemes: ["Peacemakers", "Merciful"],
+    scriptureReferences: [
+      "Proverbs 18:1",
+      "Proverbs 13:20",
+      "Proverbs 16:28",
+      "John 15:13",
+    ],
+    safeSummary:
+      "Healthy friendship is cultivated through wise companionship, trust, discretion, presence, and love. Jesus shows its fullest shape through faithful, sacrificial love.",
+    resistancePattern:
+      "Isolation can disguise itself as independence, while convenience, shallow connection, foolish influence, or broken trust keep friendship from maturing.",
+    reflectionQuestion:
+      "Who is shaping me right now, and who am I becoming because of their influence?",
+    practiceStep:
+      "Choose one trusted person this week and intentionally invest in that relationship through encouragement, conversation, prayer, or shared time.",
+  },
+  {
     title: "Mercy and Forgiveness",
     categories: ["soul"],
     tags: ["relationships", "bitterness", "high_resistance", "peace"],
