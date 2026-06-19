@@ -473,6 +473,168 @@ export function resolveStoredIdentityHumilityGuidanceProfile(result) {
     : null;
 }
 
+export const SURRENDER_PROFILE_VERSION = 1;
+
+export const surrenderGuidanceProfiles = {
+  default: {
+    focus: "Surrender",
+    pattern: "Control replacing trust",
+    scripture: "James 4:7-8; Matthew 6:33",
+    scriptureMeaning:
+      "Scripture connects nearness to God with surrender. Anxiety often shows where control is trying to take the place of trust.",
+    growthReason:
+      "Surrender matters because what remains hidden under control will keep pulling the structure off center.",
+    beginnerHint:
+      "Read the passage and name one place you are grasping for control instead of returning to God.",
+    scriptureQuestion: "What am I trying to carry that God is asking me to release?",
+    watch: "Anxiety, grasping, or replaying outcomes you cannot control.",
+    step: "Name one situation you are trying to control and surrender it in prayer.",
+    prompt: "What am I trying to carry that God is asking me to release?",
+  },
+  trust_in_uncertainty: {
+    focus: "Trust in Uncertainty",
+    pattern: "Waiting for certainty before resting in God's character",
+    scripture: "Proverbs 3:5-6; Isaiah 26:3",
+    scriptureMeaning:
+      "Trust is not certainty about outcomes. Scripture invites us to lean on God's wisdom and remain grounded in His character while the future is still unclear.",
+    growthReason:
+      "Faith becomes steadier when confidence rests in who God is rather than in knowing exactly what will happen.",
+    beginnerHint:
+      "Name the part of the future you cannot see, then read the passages as an invitation to trust God one step at a time.",
+    scriptureQuestion:
+      "Where am I requiring certainty before I am willing to trust God?",
+    watch:
+      "Delaying trust until every possibility feels explained, predictable, or safe.",
+    step:
+      "Name one uncertain outcome and entrust it to God, then take the next faithful step that is already clear.",
+    prompt:
+      "What remains unknown, and what is still true about God while I wait?",
+  },
+  releasing_control: {
+    focus: "Releasing Control",
+    pattern: "Carrying responsibility for outcomes that were never yours to control",
+    scripture: "Psalm 46:10; James 4:13-15",
+    scriptureMeaning:
+      "Scripture reminds us that our plans remain under God's care. Growth often begins when we become still enough to release the illusion that everything depends on us.",
+    growthReason:
+      "Surrender creates room to act faithfully without trying to manage every person, detail, or outcome.",
+    beginnerHint:
+      "Separate the responsibility God has actually given you from the outcome you have been trying to secure.",
+    scriptureQuestion:
+      "What outcome am I trying to manage as though everything depends on me?",
+    watch:
+      "Overplanning, grasping, or repeatedly trying to control another person's response or an uncertain result.",
+    step:
+      "Write down what is yours to do and what is not yours to control, then release the second part in prayer.",
+    prompt:
+      "What can I faithfully tend today, and what do I need to place back in God's hands?",
+  },
+  peace_when_outcomes_are_unclear: {
+    focus: "Peace Before Clarity",
+    pattern: "Treating peace as something that can come only after every answer arrives",
+    scripture: "Philippians 4:6-7; John 14:27",
+    scriptureMeaning:
+      "God often provides peace before He provides clarity. His peace can guard the heart and mind while questions remain unanswered.",
+    growthReason:
+      "Receiving peace in the middle of uncertainty loosens anxiety's claim that everything must be resolved before you can rest.",
+    beginnerHint:
+      "Bring one specific concern to God without demanding an immediate answer, and ask for His peace to guard you while you wait.",
+    scriptureQuestion:
+      "Where am I postponing peace until an outcome becomes clear?",
+    watch:
+      "Replaying possibilities, scanning for reassurance, or believing rest is impossible until the situation is settled.",
+    step:
+      "Turn one unresolved concern into a specific prayer, then pause for two quiet minutes before returning to the day.",
+    prompt:
+      "What would it mean to receive God's peace here before I receive an answer?",
+  },
+  costly_obedience: {
+    focus: "Obedience Before Understanding",
+    pattern: "Waiting for a complete explanation before taking a faithful step",
+    scripture: "Genesis 12:1-4; John 2:5",
+    scriptureMeaning:
+      "Scripture often shows faithful obedience beginning before the whole path is visible. God may give enough light for the next step without explaining every step that follows.",
+    growthReason:
+      "Trust becomes embodied when what God has made clear is obeyed even while some questions remain.",
+    beginnerHint:
+      "Ask whether the next faithful action is already clear, even if the outcome or full reason is not.",
+    scriptureQuestion:
+      "What clear act of obedience am I delaying until I understand more?",
+    watch:
+      "Using unanswered questions to postpone a step that is already known to be faithful.",
+    step:
+      "Take one small, concrete step of obedience today without requiring the entire path to be explained first.",
+    prompt:
+      "What has God already made clear enough for me to obey?",
+  },
+};
+
+export function selectSurrenderGuidanceProfile(answers, subResults) {
+  if (subResults?.lowest?.name !== "Surrender") return null;
+
+  const rawValues = [0, 1, 2, 3].map((index) => Number(answers?.[`3-${index}`]));
+  let profileKey = "default";
+
+  if (rawValues.every(Number.isFinite)) {
+    const [trustInUncertainty, releasingControl, anxietyResponse, costlyObedience] =
+      rawValues;
+    const peaceInUncertainty = 11 - anxietyResponse;
+
+    if (
+      costlyObedience <= 4 &&
+      costlyObedience <=
+        Math.min(trustInUncertainty, releasingControl, peaceInUncertainty) - 1
+    ) {
+      profileKey = "costly_obedience";
+    } else if (
+      releasingControl <= 4 &&
+      releasingControl <=
+        Math.min(trustInUncertainty, peaceInUncertainty, costlyObedience) - 1
+    ) {
+      profileKey = "releasing_control";
+    } else if (
+      peaceInUncertainty <= 4 &&
+      peaceInUncertainty <=
+        Math.min(trustInUncertainty, releasingControl, costlyObedience) - 1
+    ) {
+      profileKey = "peace_when_outcomes_are_unclear";
+    } else if (
+      trustInUncertainty <= 4 &&
+      trustInUncertainty <=
+        Math.min(releasingControl, peaceInUncertainty, costlyObedience) - 1
+    ) {
+      profileKey = "trust_in_uncertainty";
+    }
+  }
+
+  return {
+    selectedSubscore: "Surrender",
+    profileKey,
+    profileVersion: SURRENDER_PROFILE_VERSION,
+    guidance:
+      surrenderGuidanceProfiles[profileKey] || surrenderGuidanceProfiles.default,
+  };
+}
+
+export function resolveStoredSurrenderGuidanceProfile(result) {
+  if (
+    result?.selectedSubscore !== "Surrender" ||
+    Number(result?.profileVersion) !== SURRENDER_PROFILE_VERSION
+  ) {
+    return null;
+  }
+
+  const profile = surrenderGuidanceProfiles[result.profileKey];
+  return profile
+    ? {
+        selectedSubscore: "Surrender",
+        profileKey: result.profileKey,
+        profileVersion: SURRENDER_PROFILE_VERSION,
+        guidance: profile,
+      }
+    : null;
+}
+
 const biblicalGuidanceLibrary = [
   {
     title: "Godly Sorrow and Light",
