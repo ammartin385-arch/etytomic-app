@@ -308,6 +308,171 @@ export function resolveStoredThoughtLifeGuidanceProfile(result) {
     : null;
 }
 
+export const IDENTITY_HUMILITY_PROFILE_VERSION = 1;
+
+export const identityHumilityGuidanceProfiles = {
+  default: {
+    focus: "Identity and Humility",
+    pattern: "Self-protection or comparison shaping identity",
+    scripture: "Philippians 2:3-5; James 4:6",
+    scriptureMeaning:
+      "Scripture roots identity in Christ and calls believers toward humility. This area targets defensiveness, comparison, and the need to prove yourself.",
+    growthReason:
+      "When identity is unstable, correction feels like threat instead of light.",
+    beginnerHint:
+      "Read the passage and ask where you are protecting an image instead of receiving truth.",
+    scriptureQuestion: "Where am I defending an image instead of receiving truth?",
+    watch: "Needing to prove, defend, or elevate yourself.",
+    step: "Choose humility in one interaction today.",
+    prompt: "Where am I defending an image instead of receiving truth?",
+  },
+  approval_seeking: {
+    focus: "Freedom from Approval Seeking",
+    pattern:
+      "Allowing other people's approval to carry more weight than identity received from God",
+    scripture: "Galatians 1:10; Colossians 3:12",
+    scriptureMeaning:
+      "Scripture frees identity from the exhausting work of pleasing everyone. In Christ, you are invited to live from what God has given and to put on compassion, kindness, humility, gentleness, and patience.",
+    growthReason:
+      "Steadiness grows when approval becomes something you can appreciate without making it the source of your worth or direction.",
+    beginnerHint:
+      "Ask whose approval feels necessary for you to feel secure, and bring that need honestly before God.",
+    scriptureQuestion:
+      "Whose approval am I depending on to feel secure or worthwhile?",
+    watch:
+      "Changing direction to avoid disapproval, overreading reactions, or measuring worth by how others respond.",
+    step:
+      "Make one faithful choice today from conviction rather than from the need to manage another person's opinion.",
+    prompt:
+      "Where can I receive my identity from God instead of asking another person to establish it?",
+  },
+  pride_or_self_reliance: {
+    focus: "Humility and Dependence",
+    pattern:
+      "Self-protection making correction, dependence, or admitting wrong feel unsafe",
+    scripture: "James 4:6; Philippians 2:3-5",
+    scriptureMeaning:
+      "God gives grace to the humble. Christlike humility does not erase strength; it releases the need to defend position, manage appearance, or carry everything alone.",
+    growthReason:
+      "Growth becomes possible when correction can be received as light and dependence can be practiced without shame.",
+    beginnerHint:
+      "Notice where defensiveness rises. That moment may be an invitation to listen, receive grace, and loosen your grip.",
+    scriptureQuestion:
+      "Where am I protecting myself from correction or resisting the grace of dependence?",
+    watch:
+      "Explaining quickly, resisting help, needing the final word, or treating correction as a threat to worth.",
+    step:
+      "Receive one piece of correction or help without immediately defending yourself, then pray over what is true in it.",
+    prompt:
+      "What might humility allow me to receive today that self-protection keeps pushing away?",
+  },
+  shame_or_self_condemnation: {
+    focus: "No Condemnation in Christ",
+    pattern:
+      "Mistakes or correction becoming a verdict about identity instead of an invitation to grace and growth",
+    scripture: "Romans 8:1; 2 Corinthians 5:17",
+    scriptureMeaning:
+      "In Christ, conviction does not end in condemnation. You are made new, and honest repentance can lead toward life without turning failure into your identity.",
+    growthReason:
+      "Humility becomes gentler and more truthful when you can admit what is wrong without believing that wrong defines your worth.",
+    beginnerHint:
+      "Separate the action that needs honesty from the identity statement that says you are beyond grace.",
+    scriptureQuestion:
+      "Where have I turned a mistake or weakness into a condemning statement about who I am?",
+    watch:
+      "Harsh inner verdicts, hiding after correction, replaying failure, or believing grace belongs to others more than to you.",
+    step:
+      "Name one failure honestly, receive the truth of Romans 8:1, and choose one restorative next step.",
+    prompt:
+      "What would honest responsibility look like if condemnation were not leading the conversation?",
+  },
+  performance_identity: {
+    focus: "Identity Beyond Performance",
+    pattern:
+      "Measuring worth through achievement, comparison, usefulness, or the pressure to prove",
+    scripture: "Ephesians 2:10; Genesis 1:26",
+    scriptureMeaning:
+      "Your worth begins with being made in God's image and receiving His workmanship, not with producing enough to earn identity. Faithful work can flow from identity without becoming its source.",
+    growthReason:
+      "Freedom grows when effort becomes a response to grace rather than a test of whether you are valuable enough.",
+    beginnerHint:
+      "Notice where a good responsibility has quietly become a measurement of your worth.",
+    scriptureQuestion:
+      "What am I trying to prove through achievement, comparison, or usefulness?",
+    watch:
+      "Restlessness after success, comparison, overworking to feel secure, or treating productivity as evidence of worth.",
+    step:
+      "Complete one responsibility faithfully, then stop without using the outcome to measure your identity.",
+    prompt: "Who am I before I accomplish, impress, or prove anything today?",
+  },
+};
+
+export function selectIdentityHumilityGuidanceProfile(answers, subResults) {
+  if (subResults?.lowest?.name !== "Identity and Humility") return null;
+
+  const values = [0, 1, 2, 3].map((index) => Number(answers?.[`6-${index}`]));
+  let profileKey = "default";
+
+  if (values.every(Number.isFinite)) {
+    const [identityStability, teachability, admitsWrong, freedomFromComparison] = values;
+    const humilityAverage = (teachability + admitsWrong) / 2;
+    const identityAverage = (identityStability + freedomFromComparison) / 2;
+
+    if (
+      freedomFromComparison <= 4 &&
+      freedomFromComparison <= Math.min(identityStability, teachability, admitsWrong) - 1
+    ) {
+      profileKey = "performance_identity";
+    } else if (
+      identityStability <= 4 &&
+      identityStability <= Math.min(teachability, admitsWrong, freedomFromComparison) - 1
+    ) {
+      profileKey = "approval_seeking";
+    } else if (
+      teachability <= 5 &&
+      admitsWrong <= 5 &&
+      humilityAverage <= identityAverage - 1
+    ) {
+      profileKey = "pride_or_self_reliance";
+    } else if (
+      identityStability <= 5 &&
+      admitsWrong <= 5 &&
+      (identityStability + admitsWrong) / 2 <=
+        (teachability + freedomFromComparison) / 2 - 1
+    ) {
+      profileKey = "shame_or_self_condemnation";
+    }
+  }
+
+  return {
+    selectedSubscore: "Identity and Humility",
+    profileKey,
+    profileVersion: IDENTITY_HUMILITY_PROFILE_VERSION,
+    guidance:
+      identityHumilityGuidanceProfiles[profileKey] ||
+      identityHumilityGuidanceProfiles.default,
+  };
+}
+
+export function resolveStoredIdentityHumilityGuidanceProfile(result) {
+  if (
+    result?.selectedSubscore !== "Identity and Humility" ||
+    Number(result?.profileVersion) !== IDENTITY_HUMILITY_PROFILE_VERSION
+  ) {
+    return null;
+  }
+
+  const profile = identityHumilityGuidanceProfiles[result.profileKey];
+  return profile
+    ? {
+        selectedSubscore: "Identity and Humility",
+        profileKey: result.profileKey,
+        profileVersion: IDENTITY_HUMILITY_PROFILE_VERSION,
+        guidance: profile,
+      }
+    : null;
+}
+
 const biblicalGuidanceLibrary = [
   {
     title: "Godly Sorrow and Light",
