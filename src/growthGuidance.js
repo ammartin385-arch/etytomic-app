@@ -635,6 +635,164 @@ export function resolveStoredSurrenderGuidanceProfile(result) {
     : null;
 }
 
+export const CONNECTION_TO_GOD_PROFILE_VERSION = 1;
+
+export const connectionToGodGuidanceProfiles = {
+  default: {
+    focus: "Connection to God",
+    pattern: "Drifting from the center before direction is formed",
+    scripture: "1 John 1:5-7; Acts 17:28",
+    scriptureMeaning:
+      "God is light, and coming to Him brings hidden things into view. This area targets whether prayer, Scripture, and dependence are actually shaping direction.",
+    growthReason:
+      "Connection is first because God is not a layer of the structure. He is the center that gives the rest of life truth and order.",
+    beginnerHint:
+      "Start with the passage and ask one simple question: What does this show me about God, and what does it expose in me?",
+    scriptureQuestion:
+      "Where am I making decisions without returning to the center first?",
+    watch: "Moments when you move quickly without prayer, Scripture, or dependence.",
+    step: "Pause once today before a decision and bring it before God.",
+    prompt: "Where am I moving without first returning to God?",
+  },
+  prayer_and_presence: {
+    focus: "Prayer and Presence",
+    pattern: "Treating prayer mainly as a task instead of a place of honest return",
+    scripture: "Psalm 63:1; Hebrews 4:16",
+    scriptureMeaning:
+      "Prayer is not only something to complete. Scripture invites us to seek God, draw near honestly, and receive mercy and grace in His presence.",
+    growthReason:
+      "Connection becomes steadier when prayer is practiced as communion, dependence, and a place to bring the heart as it truly is.",
+    beginnerHint:
+      "Begin with a few honest sentences rather than trying to produce a polished or lengthy prayer.",
+    scriptureQuestion:
+      "What would I bring to God if prayer were a place of honest return rather than a task to perform?",
+    watch:
+      "Avoiding prayer until you feel composed, need an answer, or believe you have enough time to do it perfectly.",
+    step:
+      "Set aside five quiet minutes to speak honestly with God and remain still in His presence.",
+    prompt:
+      "What do I need to bring honestly into God's presence today?",
+  },
+  scripture_engagement: {
+    focus: "Formed by God's Word",
+    pattern: "Receiving Scripture as information without allowing it to shape direction",
+    scripture: "Psalm 119:105; 2 Timothy 3:16-17",
+    scriptureMeaning:
+      "Scripture does more than inform. God's Word gives light, reveals truth, trains the heart, and equips us for the next faithful step.",
+    growthReason:
+      "Meaningful engagement grows when Scripture is read slowly enough to be received, examined, and practiced.",
+    beginnerHint:
+      "Read a short passage and ask what it reveals about God, what it brings into the light, and what response it invites.",
+    scriptureQuestion:
+      "What truth from Scripture needs to shape my next response rather than remain only something I know?",
+    watch:
+      "Reading quickly for completion, collecting information without reflection, or leaving truth disconnected from daily choices.",
+    step:
+      "Read one short passage slowly, write down one truth, and practice one response it makes clear.",
+    prompt:
+      "What is God's Word showing me, and what faithful response does it invite?",
+  },
+  dependence_in_decisions: {
+    focus: "Dependence in Decisions",
+    pattern: "Making decisions from pressure or independence before seeking God's wisdom",
+    scripture: "Proverbs 3:5-6; James 1:5",
+    scriptureMeaning:
+      "Alignment deepens when decisions are not carried by self-reliance, pressure, or fear. Scripture invites us to acknowledge God and ask Him for wisdom.",
+    growthReason:
+      "Dependence creates room for wisdom, patience, and direction before urgency or personal preference takes the lead.",
+    beginnerHint:
+      "Bring one real decision to God and ask for wisdom before trying to settle every detail yourself.",
+    scriptureQuestion:
+      "Where am I deciding quickly without first asking God for wisdom and direction?",
+    watch:
+      "Moving from urgency, assuming you must solve everything alone, or asking God only after a direction is already chosen.",
+    step:
+      "Pause before one decision today, ask God for wisdom, and name the principle that should guide your response.",
+    prompt:
+      "What decision needs dependence on God more than another round of pressure or self-reliance?",
+  },
+  seeking_god_first: {
+    focus: "Seeking God First",
+    pattern: "Adding God around existing priorities instead of allowing Him to order them",
+    scripture: "Matthew 6:33; Colossians 3:1-2",
+    scriptureMeaning:
+      "Spiritual alignment begins when God is not merely added to life but received as its center. Seeking Him first gives other priorities their proper place.",
+    growthReason:
+      "A life centered on God becomes clearer when attention and desire return to Him before competing demands establish direction.",
+    beginnerHint:
+      "Notice what receives your first attention, strongest energy, or quickest dependence, then make one small act of reordering.",
+    scriptureQuestion:
+      "What has been receiving first place in my attention or dependence instead of God?",
+    watch:
+      "Turning to God only after plans fail, beginning the day with every other demand, or allowing urgency to establish the center.",
+    step:
+      "Give God the first ten quiet minutes of one part of your day through prayer, Scripture, and surrendered attention.",
+    prompt:
+      "What would change today if seeking God came before reacting to everything else?",
+  },
+};
+
+export function selectConnectionToGodGuidanceProfile(answers, subResults) {
+  if (subResults?.lowest?.name !== "Connection to God") return null;
+
+  const values = [0, 1, 2, 3].map((index) => Number(answers?.[`0-${index}`]));
+  let profileKey = "default";
+
+  if (values.every(Number.isFinite)) {
+    const [prayer, scripture, decisionDependence, seekingFirst] = values;
+
+    if (
+      seekingFirst <= 4 &&
+      seekingFirst <= Math.min(prayer, scripture, decisionDependence) - 1
+    ) {
+      profileKey = "seeking_god_first";
+    } else if (
+      decisionDependence <= 4 &&
+      decisionDependence <= Math.min(prayer, scripture, seekingFirst) - 1
+    ) {
+      profileKey = "dependence_in_decisions";
+    } else if (
+      scripture <= 4 &&
+      scripture <= Math.min(prayer, decisionDependence, seekingFirst) - 1
+    ) {
+      profileKey = "scripture_engagement";
+    } else if (
+      prayer <= 4 &&
+      prayer <= Math.min(scripture, decisionDependence, seekingFirst) - 1
+    ) {
+      profileKey = "prayer_and_presence";
+    }
+  }
+
+  return {
+    selectedSubscore: "Connection to God",
+    profileKey,
+    profileVersion: CONNECTION_TO_GOD_PROFILE_VERSION,
+    guidance:
+      connectionToGodGuidanceProfiles[profileKey] ||
+      connectionToGodGuidanceProfiles.default,
+  };
+}
+
+export function resolveStoredConnectionToGodGuidanceProfile(result) {
+  if (
+    result?.selectedSubscore !== "Connection to God" ||
+    Number(result?.profileVersion) !== CONNECTION_TO_GOD_PROFILE_VERSION
+  ) {
+    return null;
+  }
+
+  const profile = connectionToGodGuidanceProfiles[result.profileKey];
+  return profile
+    ? {
+        selectedSubscore: "Connection to God",
+        profileKey: result.profileKey,
+        profileVersion: CONNECTION_TO_GOD_PROFILE_VERSION,
+        guidance: profile,
+      }
+    : null;
+}
+
 const biblicalGuidanceLibrary = [
   {
     title: "Godly Sorrow and Light",
