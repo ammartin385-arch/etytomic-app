@@ -174,7 +174,7 @@ export const thoughtLifeGuidanceProfiles = {
     step:
       "Choose one truth from Scripture and return to it at three points today: morning, midday, and evening.",
     prompt:
-      "What pattern of thinking most needs to be reshaped by what is true?",
+      "How have my familiar assumptions shaped the way I interpreted today?",
   },
   trust_instead_of_anxiety: {
     focus: "Trust Instead of Anxiety",
@@ -230,22 +230,23 @@ export const thoughtLifeGuidanceProfiles = {
     prompt: "Where does my attention keep going, and what would help me return it to truth?",
   },
   comparison_or_performance: {
-    focus: "Freedom from Comparison and Performance",
-    pattern: "Thoughts measuring worth through comparison, approval, or the pressure to prove",
-    scripture: "Romans 12:2; Matthew 6:25-34",
+    focus: "Freedom from Comparison",
+    pattern: "Attention becoming preoccupied with another person's path, pace, or progress",
+    scripture: "Galatians 6:4-5; John 21:21-22",
     scriptureMeaning:
-      "Scripture invites the mind out of the patterns that shape worth through pressure and comparison. Jesus redirects attention from anxious striving toward the Father's care and the faithful work of today.",
+      "Scripture redirects comparison toward honest attention to your own faithful work. Jesus calls each person to follow Him rather than allowing another person's path to define the next response.",
     growthReason:
-      "Inner steadiness grows when worth is received from God rather than continually measured against another person, expectation, or image.",
+      "Freedom grows when another person's progress can be noticed without becoming the measure or direction of your own life.",
     beginnerHint:
-      "Ask whether a thought is helping you receive truth or pressuring you to prove something about yourself.",
-    scriptureQuestion: "Where am I measuring myself instead of receiving what is true from God?",
+      "Notice whose path repeatedly captures your attention, then return to the responsibility and grace God has placed before you.",
+    scriptureQuestion:
+      "Whose path am I watching so closely that I am losing attention to my own faithful work?",
     watch:
-      "Mentally ranking, proving, rehearsing how you appear, or letting another person's path define your worth.",
+      "Mentally ranking progress, repeatedly checking another person's path, or allowing their pace to define your direction.",
     step:
-      "Name one comparison or performance thought and answer it with one truth about your identity and today's faithful responsibility.",
+      "Abstain from one comparison trigger today, bless the other person's path, and return to one responsibility God has given you.",
     prompt:
-      "What am I trying to prove, and what becomes possible if I receive my worth from God instead?",
+      "What becomes possible when I stop monitoring another person's path and faithfully tend my own?",
   },
 };
 
@@ -486,39 +487,41 @@ export const SURRENDER_PROFILE_VERSION = 1;
 export const surrenderGuidanceProfiles = {
   default: {
     focus: "Open-Handed Surrender",
-    pattern: "Holding tightly to plans, timing, desires, expectations, or outcomes",
+    pattern:
+      "Holding identity, desires, timing, plans, expectations, or outcomes outside an open-handed life before God",
     scripture: "Romans 12:1-2; Psalm 37:5",
     scriptureMeaning:
-      "Surrender is the ongoing practice of placing the whole life before God and allowing Him to shape its direction.",
+      "Surrender is the whole-life practice of placing identity, desires, timing, plans, and outcomes before God and allowing Him to shape their direction.",
     growthReason:
-      "Open-handed trust makes room for God to shape plans, timing, desires, expectations, and outcomes without requiring one specific struggle to define the work.",
+      "Open-handed trust keeps one preferred result from becoming the center and makes room for every part of life to remain responsive to God.",
     beginnerHint:
-      "Notice what feels difficult to place before God, and begin with one honest, open-handed prayer.",
+      "Notice which part of life feels most difficult to place before God, then begin with an honest prayer of availability.",
     scriptureQuestion:
-      "What plan, desire, expectation, or outcome am I holding too tightly before God?",
+      "What part of my life am I keeping outside an open-handed yes to God?",
     watch:
-      "Holding tightly to preferred timing, explanations, outcomes, or personal expectations.",
+      "Building identity around a preferred plan, timing, role, desire, explanation, or outcome.",
     step:
-      "Name one thing you are holding tightly, offer it to God in prayer, and choose one open-handed response today.",
+      "Open your hands in prayer, name one part of life you are yielding, and practice one response that reflects availability to God.",
     prompt:
-      "What plan, desire, expectation, or outcome am I holding too tightly before God?",
+      "How might my day look different if this part of life were truly available to God?",
   },
   trust_in_uncertainty: {
     focus: "Trust in Uncertainty",
-    pattern: "Waiting for certainty before resting in God's character",
+    pattern:
+      "Allowing an unknown outcome to become more believable than God's known character",
     scripture: "Proverbs 3:5-6; Isaiah 26:3",
     scriptureMeaning:
-      "Trust is not certainty about outcomes. Scripture invites us to lean on God's wisdom and remain grounded in His character while the future is still unclear.",
+      "Trust is not certainty about outcomes. Scripture invites confidence in God's wisdom, faithfulness, and nearness while the future remains unknown.",
     growthReason:
       "Faith becomes steadier when confidence rests in who God is rather than in knowing exactly what will happen.",
     beginnerHint:
-      "Name the part of the future you cannot see, then read the passages as an invitation to trust God one step at a time.",
+      "Name what remains unknown, then identify one aspect of God's character that remains trustworthy without an answer.",
     scriptureQuestion:
       "Where am I requiring certainty before I am willing to trust God?",
     watch:
-      "Delaying trust until every possibility feels explained, predictable, or safe.",
+      "Interpreting uncertainty as evidence that God is absent, unfaithful, or unable to guide the next step.",
     step:
-      "Name one uncertain outcome and entrust it to God, then take the next faithful step that is already clear.",
+      "Name one uncertain outcome, anchor your prayer in one truth about God's character, and take the next faithful step already clear.",
     prompt:
       "What remains unknown, and what is still true about God while I wait?",
   },
@@ -527,38 +530,38 @@ export const surrenderGuidanceProfiles = {
     pattern: "Carrying responsibility for outcomes that were never yours to control",
     scripture: "Psalm 46:10; James 4:13-15",
     scriptureMeaning:
-      "Scripture reminds us that our plans remain under God's care. Growth often begins when we become still enough to release the illusion that everything depends on us.",
+      "Scripture reminds us that faithful responsibility belongs to us, while people, timing, and final outcomes remain under God's care.",
     growthReason:
-      "Surrender creates room to act faithfully without trying to manage every person, detail, or outcome.",
+      "Surrender creates room to carry what is truly yours without assuming responsibility for what only God or another person can govern.",
     beginnerHint:
       "Separate the responsibility God has actually given you from the outcome you have been trying to secure.",
     scriptureQuestion:
       "What outcome am I trying to manage as though everything depends on me?",
     watch:
-      "Overplanning, grasping, or repeatedly trying to control another person's response or an uncertain result.",
+      "Taking responsibility for another person's response, forcing timing, or treating a final outcome as proof that you acted faithfully.",
     step:
       "Write down what is yours to do and what is not yours to control, then release the second part in prayer.",
     prompt:
-      "What can I faithfully tend today, and what do I need to place back in God's hands?",
+      "How can I remain responsible without trying to become responsible for the result?",
   },
   peace_when_outcomes_are_unclear: {
     focus: "Peace Before Clarity",
     pattern: "Treating peace as something that can come only after every answer arrives",
     scripture: "Philippians 4:6-7; John 14:27",
     scriptureMeaning:
-      "God often provides peace before He provides clarity. His peace can guard the heart and mind while questions remain unanswered.",
+      "God often provides calm before He provides resolution. His peace can guard the heart and mind while the situation itself remains unsettled.",
     growthReason:
-      "Receiving peace in the middle of uncertainty loosens anxiety's claim that everything must be resolved before you can rest.",
+      "Receiving peace before resolution loosens the body's and mind's demand that every loose end must close before rest is permitted.",
     beginnerHint:
-      "Bring one specific concern to God without demanding an immediate answer, and ask for His peace to guard you while you wait.",
+      "Bring one unresolved concern to God and ask specifically for guarded calm rather than an immediate explanation.",
     scriptureQuestion:
       "Where am I postponing peace until an outcome becomes clear?",
     watch:
-      "Replaying possibilities, scanning for reassurance, or believing rest is impossible until the situation is settled.",
+      "Scanning for reassurance, repeatedly checking the situation, or postponing rest until something outside you changes.",
     step:
-      "Turn one unresolved concern into a specific prayer, then pause for two quiet minutes before returning to the day.",
+      "Pray over one unresolved concern, slow your breathing for two quiet minutes, and receive the calm available before the answer.",
     prompt:
-      "What would it mean to receive God's peace here before I receive an answer?",
+      "Where did I notice even a small measure of calm while the situation remained unresolved?",
   },
   costly_obedience: {
     focus: "Obedience Before Understanding",
@@ -667,16 +670,16 @@ export const connectionToGodGuidanceProfiles = {
     step:
       "At three natural transitions today, pause briefly to acknowledge God's presence and offer Him your attention.",
     prompt:
-      "Where have I been living from distance or self-sufficiency, and what would returning to God look like today?",
+      "At what ordinary moment today did I notice God's presence, and when did I forget it?",
   },
   prayer_and_presence: {
     focus: "Prayer and Presence",
     pattern: "Treating prayer mainly as a task instead of a place of honest return",
     scripture: "Psalm 63:1; Hebrews 4:16",
     scriptureMeaning:
-      "Prayer is not only something to complete. Scripture invites us to seek God, draw near honestly, and receive mercy and grace in His presence.",
+      "Prayer is honest communion with God, not only something to complete. Scripture invites us to draw near as we are and receive mercy and grace in His presence.",
     growthReason:
-      "Connection becomes steadier when prayer is practiced as communion, dependence, and a place to bring the heart as it truly is.",
+      "Connection becomes relationally honest when prayer makes room for confession, desire, gratitude, need, and quiet presence with God.",
     beginnerHint:
       "Begin with a few honest sentences rather than trying to produce a polished or lengthy prayer.",
     scriptureQuestion:
@@ -684,9 +687,9 @@ export const connectionToGodGuidanceProfiles = {
     watch:
       "Avoiding prayer until you feel composed, need an answer, or believe you have enough time to do it perfectly.",
     step:
-      "Set aside five quiet minutes to speak honestly with God and remain still in His presence.",
+      "Tell God one honest truth you have been carrying, then remain quietly present for one minute without trying to perform.",
     prompt:
-      "What do I need to bring honestly into God's presence today?",
+      "What changed when I spoke honestly with God instead of trying to pray correctly?",
   },
   scripture_engagement: {
     focus: "Formed by God's Word",
@@ -729,21 +732,21 @@ export const connectionToGodGuidanceProfiles = {
   seeking_god_first: {
     focus: "Seeking God First",
     pattern: "Adding God around existing priorities instead of allowing Him to order them",
-    scripture: "Matthew 6:33; Colossians 3:1-2",
+    scripture: "Matthew 6:33; Psalm 27:4",
     scriptureMeaning:
-      "Spiritual alignment begins when God is not merely added to life but received as its center. Seeking Him first gives other priorities their proper place.",
+      "Seeking God first is not merely priority management; it is directing desire toward God Himself so every competing center can take its proper place.",
     growthReason:
-      "A life centered on God becomes clearer when attention and desire return to Him before competing demands establish direction.",
+      "A life becomes rightly ordered when desire for God names and displaces the demand, role, or urgency trying to become the day's center.",
     beginnerHint:
-      "Notice what receives your first attention, strongest energy, or quickest dependence, then make one small act of reordering.",
+      "Identify what is currently claiming first attention or emotional authority, then bring that competing center honestly before God.",
     scriptureQuestion:
-      "What has been receiving first place in my attention or dependence instead of God?",
+      "What is asking to become the center of my day, and what would it mean to seek God before serving that demand?",
     watch:
-      "Turning to God only after plans fail, beginning the day with every other demand, or allowing urgency to establish the center.",
+      "Allowing urgency, achievement, another person's reaction, or a desired outcome to organize the day before God does.",
     step:
-      "Give God the first ten quiet minutes of one part of your day through prayer, Scripture, and surrendered attention.",
+      "Name the day's competing center, surrender its first claim in prayer, and reorder one decision around seeking God.",
     prompt:
-      "What would change today if seeking God came before reacting to everything else?",
+      "What lost some of its power when I returned God to the center?",
   },
 };
 
@@ -825,85 +828,85 @@ export const relationshipsGuidanceProfiles = {
     watch:
       "Love becoming an abstract intention instead of shaping actual speech, patience, truthfulness, mercy, and presence.",
     step:
-      "Choose one relationship and practice one concrete expression of Christlike love today.",
+      "Choose one relationship and offer one response that holds truth, mercy, and attentive presence together.",
     prompt:
-      "Where is love inviting me to respond with greater truth, patience, mercy, forgiveness, peace, or faithfulness?",
+      "How did Christlike love change both what I offered and the way I offered it?",
   },
   forgiveness_and_release: {
     focus: "Peace Requires Forgiveness",
     pattern: "Resentment keeping an offense active in the heart",
     scripture: "Ephesians 4:31-32; Colossians 3:13",
     scriptureMeaning:
-      "Forgiveness refuses to let bitterness govern the heart. It does not deny harm, remove accountability, or require immediate reconciliation.",
+      "Forgiveness releases personal repayment into God's hands. It does not deny harm, remove accountability, or require immediate reconciliation or unsafe access.",
     growthReason:
-      "Release creates room for peace when hurt is named honestly and the right to personal repayment is entrusted to God.",
+      "Release creates room for peace when hurt is named honestly and the demand to personally settle the debt no longer governs the heart.",
     beginnerHint:
       "Begin with honesty about the hurt. Forgiveness can start as a prayerful direction before emotions have fully caught up.",
     scriptureQuestion:
       "What resentment am I still carrying, and what would an honest first step toward release look like?",
     watch:
-      "Rehearsing the offense, quietly punishing, or confusing forgiveness with denial or unsafe access.",
+      "Rehearsing the debt, imagining repayment, quietly punishing, or confusing forgiveness with denial or unsafe access.",
     step:
       "Name the hurt honestly before God and pray one sentence releasing your right to personally repay it.",
     prompt:
-      "What resentment am I still carrying, and what would an honest first step toward release look like?",
+      "What changed when I placed repayment in God's hands without pretending the hurt did not matter?",
   },
   peaceful_conflict: {
     focus: "Pursuing Resolution Without Control",
     pattern: "Trying to win, manage, or force an outcome instead of pursuing understanding",
     scripture: "James 1:19-20; Romans 12:18",
     scriptureMeaning:
-      "Faithful conflict seeks understanding, truth, and peace without forcing another person's response or controlling the outcome.",
+      "Faithful conflict stays in direct conversation, listens before answering, and seeks truth and peace without forcing agreement.",
     growthReason:
-      "Resolution becomes more possible when listening, truthfulness, and responsibility replace urgency, defensiveness, and control.",
+      "Resolution becomes more possible when direct listening and clear speech replace interruption, defensiveness, and the need to win.",
     beginnerHint:
-      "Slow the conversation enough to understand before trying to persuade, correct, or defend.",
+      "Stay with the person involved, slow the dialogue, and understand what was meant before trying to persuade, correct, or defend.",
     scriptureQuestion:
       "Where am I trying to win or control instead of understand and pursue faithful resolution?",
     watch:
-      "Interrupting, preparing a defense instead of listening, demanding agreement, or treating resolution as control.",
+      "Interrupting, speaking past the other person, preparing a defense instead of listening, or demanding agreement.",
     step:
       "In one difficult conversation, ask one clarifying question before explaining your position.",
     prompt:
-      "Where am I trying to win or control instead of understand and pursue faithful resolution?",
+      "What did I understand differently after listening before defending my position?",
   },
   mercy_and_patience: {
     focus: "Mercy Before Judgment",
     pattern: "Quick judgment leaving too little room for patience, compassion, or understanding",
     scripture: "James 2:13; 1 Corinthians 13:4-5",
     scriptureMeaning:
-      "Mercy slows judgment, makes room for patience, and remembers that people are more than their most frustrating moment.",
+      "Mercy slows judgment long enough to see a person more truthfully, making room for patience without dismissing what still needs to be addressed.",
     growthReason:
-      "Patience creates space to remain truthful without allowing irritation or assumptions to define the person in front of you.",
+      "Slowing judgment creates space to remain truthful without allowing irritation, assumptions, or one difficult moment to define the person.",
     beginnerHint:
-      "Notice the first judgment that rises, then ask what mercy and truth would hold together in that moment.",
+      "Notice the first conclusion you form about another person's motive, then pause before treating that conclusion as fact.",
     scriptureQuestion:
       "Where have I formed a quick judgment that needs to be tempered by mercy and patience?",
     watch:
-      "Quick judgments, irritation, assuming motives, or withholding patience from someone who is struggling.",
+      "Assigning motives, reducing someone to one behavior, reacting from irritation, or withholding patience before understanding.",
     step:
       "Pause before one reaction today and choose a patient response that remains truthful.",
     prompt:
-      "Where have I formed a quick judgment that needs to be tempered by mercy and patience?",
+      "What became visible when I slowed my judgment long enough to see the person more fully?",
   },
   reducing_tension_and_division: {
     focus: "Guarding Unity",
     pattern: "Words, assumptions, or reactions increasing tension while responsibility is placed elsewhere",
     scripture: "Ephesians 4:2-3; Proverbs 16:28",
     scriptureMeaning:
-      "Unity is guarded through humility, restraint, truthful speech, and refusal to create unnecessary division.",
+      "Unity is guarded through humble restraint, truthful speech, and refusal to spread conflict beyond the people and places where it belongs.",
     growthReason:
-      "Peace becomes more honest when you examine your own contribution to tension before assigning the whole problem to someone else.",
+      "Peace becomes more honest when speech outside the conflict stops recruiting allies, repeating offenses, or enlarging division.",
     beginnerHint:
-      "Ask what belongs to you in the tension, even when another person's actions also need truth or accountability.",
+      "Notice what you say about the conflict when the other person is absent, and ask whether those words protect truth and unity.",
     scriptureQuestion:
       "Where am I contributing to tension that I am currently blaming entirely on someone else?",
     watch:
-      "Repeating private matters, recruiting others into conflict, careless speech, unnecessary correction, or escalating tension.",
+      "Triangulating, recruiting allies, repeating private matters, retelling the offense for validation, or escalating tension through careless speech.",
     step:
       "Refuse one unnecessary comment, repeated offense, or divisive conversation and choose a peace-building response instead.",
     prompt:
-      "Where am I contributing to tension that I am currently blaming entirely on someone else?",
+      "What speech can I stop or redirect so this conflict does not spread beyond where it belongs?",
   },
 };
 
@@ -968,6 +971,177 @@ export function resolveStoredRelationshipsGuidanceProfile(result) {
         selectedSubscore: "Relationships",
         profileKey: result.profileKey,
         profileVersion: RELATIONSHIPS_PROFILE_VERSION,
+        guidance: profile,
+      }
+    : null;
+}
+
+export const DISCIPLINE_PROFILE_VERSION = 1;
+
+export const disciplineGuidanceProfiles = {
+  default: {
+    focus: "Faithful Follow-Through",
+    pattern:
+      "Good intentions lacking a complete rhythm of choosing, practicing, reviewing, and repeating",
+    scripture: "Hebrews 12:11; 1 Timothy 4:7-8",
+    scriptureMeaning:
+      "Discipline grows through a cycle of choosing what matters, practicing it faithfully, reviewing what happened, and beginning again.",
+    growthReason:
+      "Faithful formation becomes steadier when practice includes honest review and repetition rather than depending on one successful effort.",
+    beginnerHint:
+      "Choose one area to train, complete one practice, and decide in advance when you will briefly review and repeat it.",
+    scriptureQuestion:
+      "What area needs a faithful training cycle rather than another burst of intention?",
+    watch:
+      "Starting strongly without reviewing what helped, adjusting what did not, or returning after an imperfect attempt.",
+    step:
+      "Choose one practice, complete it today, review it in one sentence, and schedule the next repetition.",
+    prompt:
+      "What did today's practice teach me about how to repeat it more faithfully?",
+  },
+  keeping_commitments: {
+    focus: "Keeping Commitments",
+    pattern:
+      "A promise affecting another person while completion or honest communication remains unfinished",
+    scripture: "Matthew 5:37; Ecclesiastes 5:4-5",
+    scriptureMeaning:
+      "Integrity develops when commitments affecting other people are made carefully, completed faithfully, or addressed through timely and honest communication.",
+    growthReason:
+      "Relational trust grows when people are not left guessing whether a commitment will be completed, changed, or released.",
+    beginnerHint:
+      "Identify the person affected by one unfinished commitment and choose completion or clear communication.",
+    scriptureQuestion:
+      "Which commitment needs either faithful completion or an honest conversation about what I can truly carry?",
+    watch:
+      "Leaving someone without an update, making vague promises, overcommitting, quietly withdrawing, or avoiding an honest renegotiation.",
+    step:
+      "Complete one outstanding commitment today, or communicate clearly with the person affected and establish a realistic next step.",
+    prompt:
+      "How can I make my yes, no, or revised commitment clearer to the person affected?",
+  },
+  building_consistent_routines: {
+    focus: "Small Consistent Rhythms",
+    pattern:
+      "Depending on occasional intensity instead of creating a sustainable rhythm",
+    scripture: "Luke 16:10; Daniel 6:10",
+    scriptureMeaning:
+      "Lasting formation often grows through modest rhythms practiced faithfully. Consistency gives important actions a dependable place in ordinary life.",
+    growthReason:
+      "A sustainable rhythm reduces the need to repeatedly decide whether an important practice will happen.",
+    beginnerHint:
+      "Choose a modest practice and connect it to something that already happens reliably in your day.",
+    scriptureQuestion:
+      "What important practice keeps being left to chance because it has no dependable place in my day or week?",
+    watch:
+      "Frequently rebuilding the plan, choosing a rhythm too large to sustain, or abandoning consistency after one interruption.",
+    step:
+      "Attach one five-to-ten-minute practice to an existing daily routine and repeat it at the same point for the next three days.",
+    prompt:
+      "What important practice keeps being left to chance because it has no dependable place in my day or week?",
+  },
+  action_before_motivation: {
+    focus: "Act Before You Feel Ready",
+    pattern:
+      "Reluctance being treated as permission to delay a responsibility that is already clear",
+    scripture: "James 1:22; Galatians 6:9",
+    scriptureMeaning:
+      "Feelings can inform action without governing it. When direction is already clear, faithful discipline can begin while reluctance is still present.",
+    growthReason:
+      "Acting while reluctant teaches the will that readiness is not required before a clear responsibility can receive a faithful response.",
+    beginnerHint:
+      "Name the responsibility you already understand, then begin its clearest part without first trying to change how you feel.",
+    scriptureQuestion:
+      "What responsibility is already clear even though I still feel reluctant to begin?",
+    watch:
+      "Treating reluctance as new information, repeatedly checking whether you feel ready, or reopening a decision that is already clear.",
+    step:
+      "Set a ten-minute timer and begin the clearest part of the responsibility before evaluating how you feel about it.",
+    prompt:
+      "What happened after I began while reluctance was still present?",
+  },
+  overcoming_delay: {
+    focus: "Begin What Has Been Delayed",
+    pattern:
+      "Avoidance keeping a responsibility vague enough that no first physical action is defined",
+    scripture: "Ephesians 5:15-16; Ecclesiastes 11:4",
+    scriptureMeaning:
+      "Delay loses strength when vague avoidance becomes one visible physical action. Beginning faithfully matters more than solving everything at once.",
+    growthReason:
+      "Defining the first physical action removes the shelter of vagueness and turns an avoided responsibility into work that has genuinely begun.",
+    beginnerHint:
+      "Describe the first step with a visible verb such as open, call, write, gather, or send.",
+    scriptureQuestion:
+      "What responsibility have I kept vague, and what is its first visible physical action?",
+    watch:
+      "Keeping the task abstract, researching instead of beginning, choosing secondary tasks, or naming a first step that is still too large.",
+    step:
+      "Define the first physical action and complete it today before adding a larger plan.",
+    prompt:
+      "Which visible action proved that the delayed work had genuinely begun?",
+  },
+};
+
+export function selectDisciplineGuidanceProfile(answers, subResults) {
+  if (subResults?.lowest?.name !== "Discipline") return null;
+
+  const values = [0, 1, 2, 3].map((index) => Number(answers?.[`8-${index}`]));
+  let profileKey = "default";
+
+  if (values.every(Number.isFinite)) {
+    const [commitments, routines, actionWithoutMotivation, avoidingDelay] =
+      values;
+
+    if (
+      avoidingDelay <= 4 &&
+      avoidingDelay <=
+        Math.min(commitments, routines, actionWithoutMotivation) - 1
+    ) {
+      profileKey = "overcoming_delay";
+    } else if (
+      actionWithoutMotivation <= 4 &&
+      actionWithoutMotivation <=
+        Math.min(commitments, routines, avoidingDelay) - 1
+    ) {
+      profileKey = "action_before_motivation";
+    } else if (
+      routines <= 4 &&
+      routines <=
+        Math.min(commitments, actionWithoutMotivation, avoidingDelay) - 1
+    ) {
+      profileKey = "building_consistent_routines";
+    } else if (
+      commitments <= 4 &&
+      commitments <=
+        Math.min(routines, actionWithoutMotivation, avoidingDelay) - 1
+    ) {
+      profileKey = "keeping_commitments";
+    }
+  }
+
+  return {
+    selectedSubscore: "Discipline",
+    profileKey,
+    profileVersion: DISCIPLINE_PROFILE_VERSION,
+    guidance:
+      disciplineGuidanceProfiles[profileKey] ||
+      disciplineGuidanceProfiles.default,
+  };
+}
+
+export function resolveStoredDisciplineGuidanceProfile(result) {
+  if (
+    result?.selectedSubscore !== "Discipline" ||
+    Number(result?.profileVersion) !== DISCIPLINE_PROFILE_VERSION
+  ) {
+    return null;
+  }
+
+  const profile = disciplineGuidanceProfiles[result.profileKey];
+  return profile
+    ? {
+        selectedSubscore: "Discipline",
+        profileKey: result.profileKey,
+        profileVersion: DISCIPLINE_PROFILE_VERSION,
         guidance: profile,
       }
     : null;
