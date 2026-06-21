@@ -158,19 +158,23 @@ export const THOUGHT_LIFE_PROFILE_VERSION = 1;
 
 export const thoughtLifeGuidanceProfiles = {
   default: {
-    focus: "Renewing the Mind",
-    pattern: "Letting a thought move unchallenged",
-    scripture: "Romans 12:2; 2 Corinthians 10:5",
+    focus: "A Mind Becoming Steady in Truth",
+    pattern: "Familiar assumptions or reactions shaping interpretation before truth is received",
+    scripture: "Romans 12:2; Philippians 4:8",
     scriptureMeaning:
-      "Scripture calls the mind to renewal and teaches that thoughts can be taken captive. This area targets the thoughts that repeatedly ask for agreement.",
+      "Renewal is the gradual formation of a mind that increasingly recognizes, receives, and returns to truth.",
     growthReason:
-      "A thought that succeeds often becomes a pathway. Naming it and answering it with truth weakens its pull.",
+      "Steadiness grows as truth becomes a repeated place of return across mixed or changing thought patterns.",
     beginnerHint:
-      "Read the passage and identify one repeated thought you should stop treating as automatically true.",
-    scriptureQuestion: "What thought keeps returning, and where is it trying to take me?",
-    watch: "A repeated thought that asks for agreement and then pulls you off center.",
-    step: "Take one recurring thought captive and answer it with truth.",
-    prompt: "What thought keeps returning, and where is it trying to take me?",
+      "Choose one truth from the passages and notice how it reshapes the way you interpret the day.",
+    scriptureQuestion:
+      "What pattern of thinking most needs to be reshaped by what is true?",
+    watch:
+      "Allowing familiar assumptions or reactions to shape interpretation without pausing for truth.",
+    step:
+      "Choose one truth from Scripture and return to it at three points today: morning, midday, and evening.",
+    prompt:
+      "What pattern of thinking most needs to be reshaped by what is true?",
   },
   trust_instead_of_anxiety: {
     focus: "Trust Instead of Anxiety",
@@ -312,19 +316,23 @@ export const IDENTITY_HUMILITY_PROFILE_VERSION = 1;
 
 export const identityHumilityGuidanceProfiles = {
   default: {
-    focus: "Identity and Humility",
-    pattern: "Self-protection or comparison shaping identity",
-    scripture: "Philippians 2:3-5; James 4:6",
+    focus: "Secure Identity, Humble Posture",
+    pattern: "Protecting identity through comparison, image management, or resistance to truth",
+    scripture: "Colossians 3:3, 12; Philippians 2:3-5",
     scriptureMeaning:
-      "Scripture roots identity in Christ and calls believers toward humility. This area targets defensiveness, comparison, and the need to prove yourself.",
+      "Identity received in Christ creates freedom to be teachable, honest, and humble without losing a secure sense of worth.",
     growthReason:
-      "When identity is unstable, correction feels like threat instead of light.",
+      "Security and humility grow together when worth is received from Christ rather than protected through image, comparison, or defensiveness.",
     beginnerHint:
-      "Read the passage and ask where you are protecting an image instead of receiving truth.",
-    scriptureQuestion: "Where am I defending an image instead of receiving truth?",
-    watch: "Needing to prove, defend, or elevate yourself.",
-    step: "Choose humility in one interaction today.",
-    prompt: "Where am I defending an image instead of receiving truth?",
+      "Name one truth about who you are in Christ, then ask how that security could make honesty or teachability safer today.",
+    scriptureQuestion:
+      "Where would remembering who I am in Christ help me become more honest, teachable, or free today?",
+    watch:
+      "Protecting identity through comparison, image management, defensiveness, or resistance to correction.",
+    step:
+      "Write down one truth about your identity in Christ, then practice one humble response in an interaction today.",
+    prompt:
+      "Where would remembering who I am in Christ help me become more honest, teachable, or free today?",
   },
   approval_seeking: {
     focus: "Freedom from Approval Seeking",
@@ -477,19 +485,23 @@ export const SURRENDER_PROFILE_VERSION = 1;
 
 export const surrenderGuidanceProfiles = {
   default: {
-    focus: "Surrender",
-    pattern: "Control replacing trust",
-    scripture: "James 4:7-8; Matthew 6:33",
+    focus: "Open-Handed Surrender",
+    pattern: "Holding tightly to plans, timing, desires, expectations, or outcomes",
+    scripture: "Romans 12:1-2; Psalm 37:5",
     scriptureMeaning:
-      "Scripture connects nearness to God with surrender. Anxiety often shows where control is trying to take the place of trust.",
+      "Surrender is the ongoing practice of placing the whole life before God and allowing Him to shape its direction.",
     growthReason:
-      "Surrender matters because what remains hidden under control will keep pulling the structure off center.",
+      "Open-handed trust makes room for God to shape plans, timing, desires, expectations, and outcomes without requiring one specific struggle to define the work.",
     beginnerHint:
-      "Read the passage and name one place you are grasping for control instead of returning to God.",
-    scriptureQuestion: "What am I trying to carry that God is asking me to release?",
-    watch: "Anxiety, grasping, or replaying outcomes you cannot control.",
-    step: "Name one situation you are trying to control and surrender it in prayer.",
-    prompt: "What am I trying to carry that God is asking me to release?",
+      "Notice what feels difficult to place before God, and begin with one honest, open-handed prayer.",
+    scriptureQuestion:
+      "What plan, desire, expectation, or outcome am I holding too tightly before God?",
+    watch:
+      "Holding tightly to preferred timing, explanations, outcomes, or personal expectations.",
+    step:
+      "Name one thing you are holding tightly, offer it to God in prayer, and choose one open-handed response today.",
+    prompt:
+      "What plan, desire, expectation, or outcome am I holding too tightly before God?",
   },
   trust_in_uncertainty: {
     focus: "Trust in Uncertainty",
@@ -639,20 +651,23 @@ export const CONNECTION_TO_GOD_PROFILE_VERSION = 1;
 
 export const connectionToGodGuidanceProfiles = {
   default: {
-    focus: "Connection to God",
-    pattern: "Drifting from the center before direction is formed",
-    scripture: "1 John 1:5-7; Acts 17:28",
+    focus: "Returning to the Center",
+    pattern: "Moving through life from distance or self-sufficiency instead of abiding awareness",
+    scripture: "John 15:4-5; Acts 17:28",
     scriptureMeaning:
-      "God is light, and coming to Him brings hidden things into view. This area targets whether prayer, Scripture, and dependence are actually shaping direction.",
+      "Connection with God is a life of abiding, awareness, and dependence. Spiritual practices flow from relationship rather than merely maintaining a routine.",
     growthReason:
-      "Connection is first because God is not a layer of the structure. He is the center that gives the rest of life truth and order.",
+      "Returning to God as the center allows prayer, Scripture, decisions, and priorities to grow from relational nearness rather than self-sufficiency.",
     beginnerHint:
-      "Start with the passage and ask one simple question: What does this show me about God, and what does it expose in me?",
+      "Use ordinary transitions in the day as simple invitations to remember God's presence and return your attention to Him.",
     scriptureQuestion:
-      "Where am I making decisions without returning to the center first?",
-    watch: "Moments when you move quickly without prayer, Scripture, or dependence.",
-    step: "Pause once today before a decision and bring it before God.",
-    prompt: "Where am I moving without first returning to God?",
+      "Where have I been living from distance or self-sufficiency, and what would returning to God look like today?",
+    watch:
+      "Moving through the day without awareness of God until a problem, decision, or need appears.",
+    step:
+      "At three natural transitions today, pause briefly to acknowledge God's presence and offer Him your attention.",
+    prompt:
+      "Where have I been living from distance or self-sufficiency, and what would returning to God look like today?",
   },
   prayer_and_presence: {
     focus: "Prayer and Presence",
