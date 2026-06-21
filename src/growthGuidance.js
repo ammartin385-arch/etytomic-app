@@ -808,6 +808,171 @@ export function resolveStoredConnectionToGodGuidanceProfile(result) {
     : null;
 }
 
+export const RELATIONSHIPS_PROFILE_VERSION = 1;
+
+export const relationshipsGuidanceProfiles = {
+  default: {
+    focus: "Relationships Ordered by Love",
+    pattern: "Relating without allowing Christlike love to govern the whole response",
+    scripture: "Colossians 3:12-14; John 13:34-35",
+    scriptureMeaning:
+      "Christlike love becomes the organizing principle for truth, mercy, forgiveness, patience, peacemaking, and unity.",
+    growthReason:
+      "Relationships become rightly ordered when love governs not only intention, but also speech, boundaries, forgiveness, patience, truthfulness, and presence.",
+    beginnerHint:
+      "Ask what love requires in one relationship without reducing love to avoidance, approval, or sentiment.",
+    scriptureQuestion: "What should govern all my relationships?",
+    watch:
+      "Love becoming an abstract intention instead of shaping actual speech, patience, truthfulness, mercy, and presence.",
+    step:
+      "Choose one relationship and practice one concrete expression of Christlike love today.",
+    prompt:
+      "Where is love inviting me to respond with greater truth, patience, mercy, forgiveness, peace, or faithfulness?",
+  },
+  forgiveness_and_release: {
+    focus: "Peace Requires Forgiveness",
+    pattern: "Resentment keeping an offense active in the heart",
+    scripture: "Ephesians 4:31-32; Colossians 3:13",
+    scriptureMeaning:
+      "Forgiveness refuses to let bitterness govern the heart. It does not deny harm, remove accountability, or require immediate reconciliation.",
+    growthReason:
+      "Release creates room for peace when hurt is named honestly and the right to personal repayment is entrusted to God.",
+    beginnerHint:
+      "Begin with honesty about the hurt. Forgiveness can start as a prayerful direction before emotions have fully caught up.",
+    scriptureQuestion:
+      "What resentment am I still carrying, and what would an honest first step toward release look like?",
+    watch:
+      "Rehearsing the offense, quietly punishing, or confusing forgiveness with denial or unsafe access.",
+    step:
+      "Name the hurt honestly before God and pray one sentence releasing your right to personally repay it.",
+    prompt:
+      "What resentment am I still carrying, and what would an honest first step toward release look like?",
+  },
+  peaceful_conflict: {
+    focus: "Pursuing Resolution Without Control",
+    pattern: "Trying to win, manage, or force an outcome instead of pursuing understanding",
+    scripture: "James 1:19-20; Romans 12:18",
+    scriptureMeaning:
+      "Faithful conflict seeks understanding, truth, and peace without forcing another person's response or controlling the outcome.",
+    growthReason:
+      "Resolution becomes more possible when listening, truthfulness, and responsibility replace urgency, defensiveness, and control.",
+    beginnerHint:
+      "Slow the conversation enough to understand before trying to persuade, correct, or defend.",
+    scriptureQuestion:
+      "Where am I trying to win or control instead of understand and pursue faithful resolution?",
+    watch:
+      "Interrupting, preparing a defense instead of listening, demanding agreement, or treating resolution as control.",
+    step:
+      "In one difficult conversation, ask one clarifying question before explaining your position.",
+    prompt:
+      "Where am I trying to win or control instead of understand and pursue faithful resolution?",
+  },
+  mercy_and_patience: {
+    focus: "Mercy Before Judgment",
+    pattern: "Quick judgment leaving too little room for patience, compassion, or understanding",
+    scripture: "James 2:13; 1 Corinthians 13:4-5",
+    scriptureMeaning:
+      "Mercy slows judgment, makes room for patience, and remembers that people are more than their most frustrating moment.",
+    growthReason:
+      "Patience creates space to remain truthful without allowing irritation or assumptions to define the person in front of you.",
+    beginnerHint:
+      "Notice the first judgment that rises, then ask what mercy and truth would hold together in that moment.",
+    scriptureQuestion:
+      "Where have I formed a quick judgment that needs to be tempered by mercy and patience?",
+    watch:
+      "Quick judgments, irritation, assuming motives, or withholding patience from someone who is struggling.",
+    step:
+      "Pause before one reaction today and choose a patient response that remains truthful.",
+    prompt:
+      "Where have I formed a quick judgment that needs to be tempered by mercy and patience?",
+  },
+  reducing_tension_and_division: {
+    focus: "Guarding Unity",
+    pattern: "Words, assumptions, or reactions increasing tension while responsibility is placed elsewhere",
+    scripture: "Ephesians 4:2-3; Proverbs 16:28",
+    scriptureMeaning:
+      "Unity is guarded through humility, restraint, truthful speech, and refusal to create unnecessary division.",
+    growthReason:
+      "Peace becomes more honest when you examine your own contribution to tension before assigning the whole problem to someone else.",
+    beginnerHint:
+      "Ask what belongs to you in the tension, even when another person's actions also need truth or accountability.",
+    scriptureQuestion:
+      "Where am I contributing to tension that I am currently blaming entirely on someone else?",
+    watch:
+      "Repeating private matters, recruiting others into conflict, careless speech, unnecessary correction, or escalating tension.",
+    step:
+      "Refuse one unnecessary comment, repeated offense, or divisive conversation and choose a peace-building response instead.",
+    prompt:
+      "Where am I contributing to tension that I am currently blaming entirely on someone else?",
+  },
+};
+
+export function selectRelationshipsGuidanceProfile(answers, subResults) {
+  if (subResults?.lowest?.name !== "Relationships") return null;
+
+  const values = [0, 1, 2, 3].map((index) => Number(answers?.[`7-${index}`]));
+  let profileKey = "default";
+
+  if (values.every(Number.isFinite)) {
+    const [forgiveness, peacefulConflict, mercyAndPatience, guardingUnity] =
+      values;
+
+    if (
+      guardingUnity <= 4 &&
+      guardingUnity <=
+        Math.min(forgiveness, peacefulConflict, mercyAndPatience) - 1
+    ) {
+      profileKey = "reducing_tension_and_division";
+    } else if (
+      mercyAndPatience <= 4 &&
+      mercyAndPatience <=
+        Math.min(forgiveness, peacefulConflict, guardingUnity) - 1
+    ) {
+      profileKey = "mercy_and_patience";
+    } else if (
+      peacefulConflict <= 4 &&
+      peacefulConflict <=
+        Math.min(forgiveness, mercyAndPatience, guardingUnity) - 1
+    ) {
+      profileKey = "peaceful_conflict";
+    } else if (
+      forgiveness <= 4 &&
+      forgiveness <=
+        Math.min(peacefulConflict, mercyAndPatience, guardingUnity) - 1
+    ) {
+      profileKey = "forgiveness_and_release";
+    }
+  }
+
+  return {
+    selectedSubscore: "Relationships",
+    profileKey,
+    profileVersion: RELATIONSHIPS_PROFILE_VERSION,
+    guidance:
+      relationshipsGuidanceProfiles[profileKey] ||
+      relationshipsGuidanceProfiles.default,
+  };
+}
+
+export function resolveStoredRelationshipsGuidanceProfile(result) {
+  if (
+    result?.selectedSubscore !== "Relationships" ||
+    Number(result?.profileVersion) !== RELATIONSHIPS_PROFILE_VERSION
+  ) {
+    return null;
+  }
+
+  const profile = relationshipsGuidanceProfiles[result.profileKey];
+  return profile
+    ? {
+        selectedSubscore: "Relationships",
+        profileKey: result.profileKey,
+        profileVersion: RELATIONSHIPS_PROFILE_VERSION,
+        guidance: profile,
+      }
+    : null;
+}
+
 const biblicalGuidanceLibrary = [
   {
     title: "Godly Sorrow and Light",
