@@ -101,12 +101,11 @@
   filter:
     drop-shadow(0 1px 1px rgba(15, 23, 42, 0.08))
     drop-shadow(0 8px 14px rgba(15, 23, 42, 0.045))
-    drop-shadow(0 0 4px rgba(203, 213, 225, 0.14)) !important;
+    drop-shadow(0 0 4px rgba(203, 213, 225, 0.14));
 }
 
 .structure-orbit-glow {
-  opacity: 0.2 !important;
-  filter: blur(1.15px) !important;
+  filter: blur(1.15px);
 }
 
 .ring-spirit,
@@ -300,16 +299,14 @@ body {
 }
 
 .structure-orbit {
-  opacity: 0.9 !important;
   filter:
     drop-shadow(0 1px 1px rgba(15, 23, 42, 0.12))
     drop-shadow(0 10px 18px rgba(15, 23, 42, 0.06))
-    drop-shadow(0 0 6px rgba(74, 111, 165, 0.1)) !important;
+    drop-shadow(0 0 6px rgba(74, 111, 165, 0.1));
 }
 
 .structure-orbit-glow {
-  opacity: 0.28 !important;
-  filter: blur(1.05px) !important;
+  filter: blur(1.05px);
 }
 
 .beam-core {
@@ -497,7 +494,7 @@ body {
 }
 
 .structure-orbit {
-  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.14)) drop-shadow(0 0 5px rgba(203, 213, 225, 0.2)) !important;
+  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.14)) drop-shadow(0 0 5px rgba(203, 213, 225, 0.2));
 }
 
 .structure-label {
@@ -688,7 +685,7 @@ textarea:focus {
   filter:
     drop-shadow(0 1px 1px rgba(15, 23, 42, 0.14))
     drop-shadow(0 10px 18px rgba(15, 23, 42, 0.055))
-    drop-shadow(0 0 6px rgba(74, 111, 165, 0.12)) !important;
+    drop-shadow(0 0 6px rgba(74, 111, 165, 0.12));
 }
 
 .beam-core {
