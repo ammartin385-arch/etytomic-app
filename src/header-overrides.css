@@ -498,11 +498,9 @@ body {
 }
 
 .structure-label {
-  fill: #566579 !important;
   font-size: 9.5px !important;
   font-weight: 650 !important;
   letter-spacing: 0.12em !important;
-  opacity: 0.72 !important;
 }
 
 .brand-mark {
