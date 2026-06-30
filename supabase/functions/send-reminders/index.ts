@@ -14,6 +14,10 @@ type ReminderPreference = {
   monthly_day: number | null;
   monthly_time: string | null;
   timezone: string | null;
+  reminder_channel: "email" | "sms" | "both" | null;
+  phone_number: string | null;
+  sms_opt_in: boolean | null;
+  sms_opted_out_at: string | null;
 };
 
 type ReminderKind = "daily" | "weekly" | "monthly";
@@ -23,6 +27,7 @@ type DueReminder = {
   title: string;
   subject: string;
   body: string;
+  smsBody: string;
 };
 
 type ReminderDiagnostic = {
@@ -57,6 +62,10 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const WINDOW_MINUTES = Number(Deno.env.get("REMINDER_WINDOW_MINUTES") || "60");
 const APP_URL = (Deno.env.get("APP_URL") || "https://etytomic.com").replace(/\/$/, "");
 const EMAIL_LOGO_URL = getEmailLogoUrl(APP_URL);
+const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
+const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
+const TWILIO_MESSAGING_SERVICE_SID = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
+const TWILIO_FROM_PHONE = Deno.env.get("TWILIO_FROM_PHONE");
 
 const WEEKDAY_NAMES = [
   "Sunday",
@@ -122,6 +131,7 @@ const getDueReminders = (preference: ReminderPreference, localNow: LocalDatePart
       title: "Daily journal reminder",
       subject: "A quiet moment to notice your alignment",
       body: "Take a few minutes today to notice what is aligned, what feels resistant, and where one faithful step may be clear.",
+      smsBody: "Etytomic reminder: Take a few minutes to notice alignment, resistance, and one faithful next step.",
     });
   }
 
@@ -136,6 +146,7 @@ const getDueReminders = (preference: ReminderPreference, localNow: LocalDatePart
       title: "Weekly journal reminder",
       subject: "Your weekly Etytomic reflection",
       body: "Use this check-in to reflect on what you have noticed since your last entry and where God may be inviting your attention.",
+      smsBody: "Etytomic reminder: Take a few minutes for your weekly reflection. Notice what has changed and where God may be inviting your attention.",
     });
   }
 
@@ -150,14 +161,23 @@ const getDueReminders = (preference: ReminderPreference, localNow: LocalDatePart
       title: "Monthly reassessment reminder",
       subject: "It may be time for your monthly alignment check-in",
       body: "Return to the assessment when you are ready. This is not pressure; it is a simple way to notice growth, resistance, and patterns over time.",
+      smsBody: "Etytomic reminder: It may be time for your monthly alignment check in. Return when you are ready.",
     });
   }
 
   return reminders;
 };
 
-const getLogKey = (userId: string, kind: ReminderKind, dateKey: string) => {
-  return userId + ":" + kind + ":" + dateKey;
+const getLogKey = (userId: string, kind: ReminderKind, channel: "email" | "sms", dateKey: string) => {
+  return userId + ":" + kind + ":" + channel + ":" + dateKey;
+};
+
+const getReminderChannels = (preference: ReminderPreference): Array<"email" | "sms"> => {
+  const channel = preference.reminder_channel || "email";
+  const channels: Array<"email" | "sms"> = [];
+  if (channel === "email" || channel === "both") channels.push("email");
+  if (channel === "sms" || channel === "both") channels.push("sms");
+  return channels;
 };
 
 const getForcedReminder = (kind: ReminderKind): DueReminder => {
@@ -167,6 +187,7 @@ const getForcedReminder = (kind: ReminderKind): DueReminder => {
       title: "Weekly journal reminder",
       subject: "Your weekly Etytomic reflection",
       body: "Use this check-in to reflect on what you have noticed since your last entry and where God may be inviting your attention.",
+      smsBody: "Etytomic reminder: Take a few minutes for your weekly reflection. Notice what has changed and where God may be inviting your attention.",
     };
   }
 
@@ -176,6 +197,7 @@ const getForcedReminder = (kind: ReminderKind): DueReminder => {
       title: "Monthly reassessment reminder",
       subject: "It may be time for your monthly alignment check-in",
       body: "Return to the assessment when you are ready. This is not pressure; it is a simple way to notice growth, resistance, and patterns over time.",
+      smsBody: "Etytomic reminder: It may be time for your monthly alignment check in. Return when you are ready.",
     };
   }
 
@@ -184,6 +206,7 @@ const getForcedReminder = (kind: ReminderKind): DueReminder => {
     title: "Daily journal reminder",
     subject: "A quiet moment to notice your alignment",
     body: "Take a few minutes today to notice what is aligned, what feels resistant, and where one faithful step may be clear.",
+    smsBody: "Etytomic reminder: Take a few minutes to notice alignment, resistance, and one faithful next step.",
   };
 };
 
@@ -195,6 +218,44 @@ const getSupabaseAdmin = () => {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   });
+};
+
+const sendSms = async (to: string, reminder: DueReminder) => {
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
+    throw new Error("Missing Twilio account secrets");
+  }
+  if (!TWILIO_MESSAGING_SERVICE_SID && !TWILIO_FROM_PHONE) {
+    throw new Error("Missing Twilio sender secret");
+  }
+
+  const message = reminder.smsBody + "\n\nReply STOP to opt out.";
+  const body = new URLSearchParams();
+  body.set("To", to);
+  body.set("Body", message);
+  if (TWILIO_MESSAGING_SERVICE_SID) {
+    body.set("MessagingServiceSid", TWILIO_MESSAGING_SERVICE_SID);
+  } else if (TWILIO_FROM_PHONE) {
+    body.set("From", TWILIO_FROM_PHONE);
+  }
+
+  const response = await fetch(
+    "https://api.twilio.com/2010-04-01/Accounts/" + TWILIO_ACCOUNT_SID + "/Messages.json",
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Basic " + btoa(TWILIO_ACCOUNT_SID + ":" + TWILIO_AUTH_TOKEN),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    },
+  );
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Twilio send failed: ${response.status} ${message}`);
+  }
+
+  return response.json();
 };
 
 const sendEmail = async (to: string, reminder: DueReminder) => {
@@ -245,7 +306,7 @@ export default {
 
     const { data: preferences, error: preferencesError } = await supabaseAdmin
       .from("reminder_preferences")
-      .select("id,user_id,timezone,daily_enabled,daily_time,weekly_enabled,weekly_day,weekly_time,monthly_enabled,monthly_day,monthly_time")
+      .select("id,user_id,timezone,reminder_channel,phone_number,sms_opt_in,sms_opted_out_at,daily_enabled,daily_time,weekly_enabled,weekly_day,weekly_time,monthly_enabled,monthly_day,monthly_time")
       .or("daily_enabled.eq.true,weekly_enabled.eq.true,monthly_enabled.eq.true");
 
     if (preferencesError) {
@@ -256,6 +317,8 @@ export default {
     const results = {
       checked: preferences?.length || 0,
       sent: 0,
+      sent_email: 0,
+      sent_sms: 0,
       skipped: 0,
       forced: forceKind,
       diagnostics: [] as ReminderDiagnostic[],
@@ -289,49 +352,73 @@ export default {
         continue;
       }
 
-      const { data: userResult, error: userError } = await supabaseAdmin.auth.admin.getUserById(preference.user_id);
-      const email = userResult?.user?.email;
+      const channels = getReminderChannels(preference);
+      const needsEmail = channels.includes("email");
+      let email: string | undefined;
 
-      if (userError || !email) {
-        results.errors.push(`No email found for user ${preference.user_id}`);
-        continue;
+      if (needsEmail) {
+        const { data: userResult, error: userError } = await supabaseAdmin.auth.admin.getUserById(preference.user_id);
+        email = userResult?.user?.email;
+
+        if (userError || !email) {
+          results.errors.push(`No email found for user ${preference.user_id}`);
+        }
       }
 
       for (const reminder of dueReminders) {
-        const logKey = getLogKey(
-          preference.user_id,
-          reminder.kind,
-          forceKind ? `${localNow.dateKey}:forced:${now.getTime()}` : localNow.dateKey,
-        );
-        const { data: existingLog, error: logLookupError } = await supabaseAdmin
-          .from("reminder_delivery_log")
-          .select("id")
-          .eq("log_key", logKey)
-          .maybeSingle();
+        for (const channel of channels) {
+          if (channel === "email" && !email) {
+            results.skipped += 1;
+            continue;
+          }
+          if (channel === "sms" && (!preference.sms_opt_in || !preference.phone_number || preference.sms_opted_out_at)) {
+            results.skipped += 1;
+            continue;
+          }
 
-        if (logLookupError) {
-          results.errors.push(`Unable to check reminder log for ${logKey}: ${logLookupError.message}`);
-          continue;
-        }
+          const logKey = getLogKey(
+            preference.user_id,
+            reminder.kind,
+            channel,
+            forceKind ? `${localNow.dateKey}:forced:${now.getTime()}` : localNow.dateKey,
+          );
+          const { data: existingLog, error: logLookupError } = await supabaseAdmin
+            .from("reminder_delivery_log")
+            .select("id")
+            .eq("log_key", logKey)
+            .maybeSingle();
 
-        if (existingLog) {
-          results.skipped += 1;
-          continue;
-        }
+          if (logLookupError) {
+            results.errors.push(`Unable to check reminder log for ${logKey}: ${logLookupError.message}`);
+            continue;
+          }
 
-        try {
-          await sendEmail(email, reminder);
-          await supabaseAdmin.from("reminder_delivery_log").insert({
-            user_id: preference.user_id,
-            reminder_type: reminder.kind,
-            log_key: logKey,
-            sent_at: now.toISOString(),
-          });
-          results.sent += 1;
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          console.error("Unable to send reminder", message);
-          results.errors.push(message);
+          if (existingLog) {
+            results.skipped += 1;
+            continue;
+          }
+
+          try {
+            if (channel === "sms") {
+              await sendSms(preference.phone_number as string, reminder);
+            } else {
+              await sendEmail(email as string, reminder);
+            }
+            await supabaseAdmin.from("reminder_delivery_log").insert({
+              user_id: preference.user_id,
+              reminder_type: reminder.kind,
+              channel,
+              log_key: logKey,
+              sent_at: now.toISOString(),
+            });
+            results.sent += 1;
+            if (channel === "sms") results.sent_sms += 1;
+            if (channel === "email") results.sent_email += 1;
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            console.error("Unable to send reminder", message);
+            results.errors.push(message);
+          }
         }
       }
     }

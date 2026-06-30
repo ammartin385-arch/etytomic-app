@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Confirm your Etytomic account</title>
+  </head>
+  <body style="margin:0; padding:0; background:#F4F7FB; color:#1F2937; font-family: Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F4F7FB; margin:0; padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px; background:#FFFFFF; border:1px solid #D9E2EC; border-radius:12px; box-shadow:0 18px 45px rgba(74,111,165,0.12); overflow:hidden;">
+            <tr>
+              <td align="center" style="padding:34px 32px 18px;">
+                <img src="https://etytomic.com/brand/email-logo.png" width="280" alt="Etytomic Alignment Assessment" style="display:block; width:100%; max-width:280px; height:auto; margin:0 auto;">
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:12px 40px 40px;">
+                <p style="margin:0 0 16px; color:#4A6FA5; font-size:13px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;">Confirm Your Email</p>
+                <h1 style="margin:0; color:#1F2937; font-family: Georgia, 'Times New Roman', serif; font-size:34px; line-height:1.18; font-weight:700;">Welcome to Etytomic</h1>
+                <p style="margin:22px 0 0; color:#374151; font-size:17px; line-height:1.7;">Your Etytomic Alignment account is almost ready.</p>
+                <p style="margin:14px 0 0; color:#374151; font-size:17px; line-height:1.7;">Confirm your email to activate your account and begin your first Alignment Assessment.</p>
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:30px 0 28px;">
+                  <tr>
+                    <td bgcolor="#4A6FA5" style="border-radius:10px;">
+                      <a href="{{ .ConfirmationURL }}" style="display:inline-block; padding:15px 28px; color:#FFFFFF; font-size:16px; font-weight:700; text-decoration:none; border-radius:10px;">Confirm email</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0; color:#64748B; font-size:14px; line-height:1.7;">If the button does not work, copy and paste this link into your browser:</p>
+                <p style="margin:8px 0 0; color:#4A6FA5; font-size:13px; line-height:1.7; word-break:break-all;"><a href="{{ .ConfirmationURL }}" style="color:#4A6FA5;">{{ .ConfirmationURL }}</a></p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:22px 40px 34px; border-top:1px solid #E5E7EB; background:#F8FAFC;">
+                <p style="margin:0; color:#64748B; font-size:13px; line-height:1.7;">You received this email because an Etytomic account was created with this email address. Your reflections are private to your account and intended for your own growth.</p>
+                <p style="margin:14px 0 0; color:#64748B; font-size:13px; line-height:1.7;">Etytomic Alignment Assessment</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
