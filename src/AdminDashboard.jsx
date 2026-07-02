@@ -17,7 +17,16 @@ function isApprovedAdmin(email) {
 }
 
 function formatCount(value) {
+  if (typeof value === "string") return value;
   return new Intl.NumberFormat().format(Number(value) || 0);
+}
+
+function formatPercent(value) {
+  return `${Number(value || 0).toFixed(1)}%`;
+}
+
+function formatAverage(value) {
+  return Number(value || 0).toFixed(2);
 }
 
 function MetricCard({ label, value, detail }) {
@@ -213,15 +222,25 @@ function AdminDashboard() {
 
   const cards = [
     ["Total registered users", metrics.total_registered_users],
+    ["New users, 7 days", metrics.new_users_last_7_days],
+    ["New users, 30 days", metrics.new_users_last_30_days],
     ["Assessment users", metrics.unique_assessment_users, "Completed at least one assessment"],
+    ["Signup to assessment", formatPercent(metrics.signup_to_assessment_rate), "Registered users who completed an assessment"],
+    ["Repeat assessment users", metrics.repeat_assessment_users, "Users with 2 or more completed assessments"],
+    ["Avg assessments per user", formatAverage(metrics.average_assessments_per_assessment_user), "Among users who completed at least one assessment"],
     ["Total assessments", metrics.total_assessments],
     ["Assessments, 7 days", metrics.assessments_last_7_days],
     ["Assessments, 30 days", metrics.assessments_last_30_days],
     ["Premium active users", metrics.premium_active_users],
+    ["Premium conversion", formatPercent(metrics.premium_conversion_rate), "Premium users among assessment users"],
     ["Free users", metrics.free_users],
+    ["Journal users", metrics.journal_users, "Users with at least one journal entry"],
     ["Total journal entries", metrics.total_journal_entries, "Counts only; reflection content is never loaded"],
     ["Journal entries, 7 days", metrics.journal_entries_last_7_days],
     ["Reminder opt-ins", metrics.reminder_opt_ins, "At least one reminder enabled"],
+    ["Daily reminders", metrics.daily_reminder_opt_ins],
+    ["Weekly reminders", metrics.weekly_reminder_opt_ins],
+    ["Monthly reminders", metrics.monthly_reminder_opt_ins],
   ];
 
   return (
