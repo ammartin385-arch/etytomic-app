@@ -1283,6 +1283,21 @@ const biblicalGuidanceLibrary = [
       "Pause before one response and choose peace without avoiding truth.",
   },
   {
+    title: "Comfort and Spiritual Wakefulness",
+    categories: ["spirit", "body"],
+    tags: ["comfort", "discipline", "self_control", "body_low", "spirit_low", "active_but_uncentered"],
+    beatitudeThemes: ["Poor in spirit", "Hunger and thirst for righteousness", "Meekness"],
+    scriptureReferences: ["Luke 9:23", "Romans 13:11-14", "1 Timothy 4:7-8"],
+    safeSummary:
+      "A life arranged around ease can make the spirit dull. Christ calls the whole person into awake, faithful response.",
+    resistancePattern:
+      "Comfort can make obedience feel optional and turn attention away from the center.",
+    reflectionQuestion:
+      "Where has comfort made a faithful step feel harder than it is?",
+    practiceStep:
+      "Choose one small act of obedience today that interrupts ease and returns attention to God.",
+  },
+  {
     title: "Work, Service, and Gifts",
     categories: ["body"],
     tags: ["body_low", "follow_through", "discipline", "service"],
