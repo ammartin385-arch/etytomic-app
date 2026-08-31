@@ -1,3 +1,43 @@
+-- Track aggregate page activity for the private admin dashboard.
+-- This stores page names and anonymous visitor ids, not assessment answers or journal text.
+
+create table if not exists public.page_views (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  visitor_id text,
+  page text not null,
+  path text,
+  referrer text,
+  user_agent text,
+  created_at timestamp with time zone not null default now()
+);
+
+create index if not exists page_views_created_at_idx
+  on public.page_views (created_at desc);
+
+create index if not exists page_views_page_created_at_idx
+  on public.page_views (page, created_at desc);
+
+create index if not exists page_views_user_id_idx
+  on public.page_views (user_id);
+
+create index if not exists page_views_visitor_id_idx
+  on public.page_views (visitor_id);
+
+alter table public.page_views enable row level security;
+
+drop policy if exists "Visitors can create page views"
+  on public.page_views;
+
+create policy "Visitors can create page views"
+  on public.page_views
+  for insert
+  to anon, authenticated
+  with check (
+    page <> ''
+    and (user_id is null or auth.uid() = user_id)
+  );
+
 -- Aggregate-only admin usage metrics.
 -- This function never returns journal text, prompts, assessment answers,
 -- user emails, user ids, or other user-level records.

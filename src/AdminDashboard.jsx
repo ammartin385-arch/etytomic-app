@@ -29,6 +29,23 @@ function formatAverage(value) {
   return Number(value || 0).toFixed(2);
 }
 
+function formatPageName(page) {
+  const labels = {
+    start: "Welcome",
+    about: "About",
+    assessment: "Assessment",
+    results: "Results",
+    progress: "Progress",
+    checkin: "Check-In",
+    pricing: "Premium",
+    terms: "Terms",
+    privacy: "Privacy",
+    disclaimer: "Disclaimer",
+  };
+
+  return labels[page] || page || "Unknown";
+}
+
 function MetricCard({ label, value, detail }) {
   return (
     <article className="soft-panel rounded-md p-5 sm:p-6">
@@ -84,6 +101,43 @@ function ActivityBars({ title, data, emptyMessage }) {
         <span>{data[0]?.date || ""}</span>
         <span>{data[data.length - 1]?.date || ""}</span>
       </div>
+    </section>
+  );
+}
+
+function TopPages({ data }) {
+  return (
+    <section className="glass-panel mt-6 rounded-md p-5 sm:p-6">
+      <p className="eyebrow">Last 30 Days</p>
+      <h2 className="serif mt-2 text-2xl font-semibold text-[#1F2937]">
+        Most viewed pages
+      </h2>
+      {data.length ? (
+        <div className="mt-5 grid gap-3">
+          {data.map((item) => (
+            <div
+              key={item.page}
+              className="soft-panel flex flex-col gap-2 rounded-md p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="font-semibold text-[#1F2937]">
+                  {formatPageName(item.page)}
+                </p>
+                <p className="mt-1 text-xs text-[#6B7280]">
+                  {formatCount(item.unique_viewers)} unique viewers
+                </p>
+              </div>
+              <p className="text-sm font-semibold tabular-nums text-[#4A6FA5]">
+                {formatCount(item.views)} views
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-5 text-sm leading-6 text-[#6B7280]">
+          Page activity will appear after visitors use the app.
+        </p>
+      )}
     </section>
   );
 }
@@ -163,6 +217,14 @@ function AdminDashboard() {
     () => (Array.isArray(metrics?.new_users_by_day) ? metrics.new_users_by_day : []),
     [metrics],
   );
+  const pageViewDays = useMemo(
+    () => (Array.isArray(metrics?.page_views_by_day) ? metrics.page_views_by_day : []),
+    [metrics],
+  );
+  const topPages = useMemo(
+    () => (Array.isArray(metrics?.top_pages) ? metrics.top_pages : []),
+    [metrics],
+  );
 
   if (status === "loading") {
     return (
@@ -224,6 +286,10 @@ function AdminDashboard() {
     ["Total registered users", metrics.total_registered_users],
     ["New users, 7 days", metrics.new_users_last_7_days],
     ["New users, 30 days", metrics.new_users_last_30_days],
+    ["Unique page viewers", metrics.unique_page_viewers, "Distinct visitors across app pages"],
+    ["Page views, 7 days", metrics.page_views_last_7_days],
+    ["Page views, 30 days", metrics.page_views_last_30_days],
+    ["Unique viewers, 30 days", metrics.unique_page_viewers_last_30_days],
     ["Assessment users", metrics.unique_assessment_users, "Completed at least one assessment"],
     ["Signup to assessment", formatPercent(metrics.signup_to_assessment_rate), "Registered users who completed an assessment"],
     ["Repeat assessment users", metrics.repeat_assessment_users, "Users with 2 or more completed assessments"],
@@ -270,7 +336,7 @@ function AdminDashboard() {
         ))}
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-2">
+      <section className="mt-6 grid gap-6 xl:grid-cols-3">
         <ActivityBars
           title="Assessments by day"
           data={assessmentDays}
@@ -281,7 +347,14 @@ function AdminDashboard() {
           data={newUserDays}
           emptyMessage="No new users were recorded during this period."
         />
+        <ActivityBars
+          title="Page views by day"
+          data={pageViewDays}
+          emptyMessage="No page views were recorded during this period."
+        />
       </section>
+
+      <TopPages data={topPages} />
 
       <section className="glass-panel mt-6 rounded-md p-5 sm:p-6">
         <p className="eyebrow">Plan Mix</p>
