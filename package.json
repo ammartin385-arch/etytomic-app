@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:production-analytics": "node scripts/verify-production-analytics.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
