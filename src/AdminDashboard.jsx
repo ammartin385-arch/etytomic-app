@@ -29,6 +29,16 @@ function formatAverage(value) {
   return Number(value || 0).toFixed(2);
 }
 
+function formatDateTime(value) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 function formatPageName(page) {
   const labels = {
     start: "Welcome",
@@ -44,6 +54,162 @@ function formatPageName(page) {
   };
 
   return labels[page] || page || "Unknown";
+}
+
+function FunnelTable({ data }) {
+  const rows = [
+    ["Unique visitors", "unique_visitors", "count"],
+    ["Assessment CTA clicks", "assessment_cta_clicks", "count"],
+    ["Signup page reached", "signup_page_reached", "count"],
+    ["New registrations", "new_registrations", "count"],
+    ["Assessment started", "assessment_started", "count"],
+    ["Assessment completed", "assessment_completed", "count"],
+    ["Results viewed", "results_viewed", "count"],
+    ["Visitor → Registration", "visitor_to_registration_rate", "percent"],
+    [
+      "Registration → Assessment Started",
+      "registration_to_assessment_started_rate",
+      "percent",
+    ],
+    [
+      "Assessment Started → Assessment Completed",
+      "assessment_started_to_completed_rate",
+      "percent",
+    ],
+    [
+      "Visitor → Completed Assessment",
+      "visitor_to_completed_assessment_rate",
+      "percent",
+    ],
+  ];
+
+  return (
+    <section className="glass-panel mt-6 overflow-hidden rounded-md p-5 sm:p-6">
+      <p className="eyebrow">Current Funnel</p>
+      <h2 className="serif mt-2 text-2xl font-semibold text-[#1F2937]">
+        Acquisition and assessment funnel
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
+        Each column is calculated inside its own time window. Counts are product
+        activity only; assessment answers and reflection content are not loaded.
+        All-time visitor-based rates begin with the visitor tracking table, so
+        older registrations may not have matching visitor records.
+      </p>
+      <div className="mt-5 overflow-x-auto">
+        <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
+          <thead>
+            <tr>
+              <th className="sticky left-0 z-10 border-b border-[#E5E7EB] bg-white/95 py-3 pr-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]">
+                Stage
+              </th>
+              {data.map((period) => (
+                <th
+                  key={period.key}
+                  className="border-b border-[#E5E7EB] px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280]"
+                >
+                  {period.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([label, key, type]) => (
+              <tr key={key}>
+                <td className="sticky left-0 z-10 border-b border-[#F1F5F9] bg-white/95 py-3 pr-4 font-semibold text-[#1F2937]">
+                  {label}
+                </td>
+                {data.map((period) => (
+                  <td
+                    key={`${period.key}-${key}`}
+                    className="border-b border-[#F1F5F9] px-4 py-3 text-right tabular-nums text-[#374151]"
+                  >
+                    {type === "percent"
+                      ? formatPercent(period[key])
+                      : formatCount(period[key])}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function RecentRegisteredActivity({ data }) {
+  return (
+    <section className="glass-panel mt-6 overflow-hidden rounded-md p-5 sm:p-6">
+      <p className="eyebrow">Recent Registered Activity</p>
+      <h2 className="serif mt-2 text-2xl font-semibold text-[#1F2937]">
+        Do new users use the product?
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
+        Registered-user activity only. This shows account identifiers and usage
+        milestones, not assessment answers, scores, or reflection content.
+      </p>
+      {data.length ? (
+        <div className="mt-5 overflow-x-auto">
+          <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
+            <thead>
+              <tr>
+                {[
+                  "User",
+                  "Signup",
+                  "Started",
+                  "Completed",
+                  "Completion",
+                  "Completed assessments",
+                ].map((label) => (
+                  <th
+                    key={label}
+                    className="border-b border-[#E5E7EB] px-3 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#6B7280] first:pl-0"
+                  >
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => (
+                <tr key={item.user_id}>
+                  <td className="max-w-[16rem] border-b border-[#F1F5F9] py-3 pr-3 font-semibold text-[#1F2937]">
+                    <span className="block truncate">
+                      {item.email || item.user_id}
+                    </span>
+                    {item.email ? (
+                      <span className="mt-1 block truncate text-xs font-normal text-[#9CA3AF]">
+                        {item.user_id}
+                      </span>
+                    ) : null}
+                  </td>
+                  <td className="border-b border-[#F1F5F9] px-3 py-3 text-[#374151]">
+                    {formatDateTime(item.signup_at)}
+                  </td>
+                  <td className="border-b border-[#F1F5F9] px-3 py-3 font-semibold text-[#374151]">
+                    {item.assessment_started ? "Yes" : "No"}
+                  </td>
+                  <td className="border-b border-[#F1F5F9] px-3 py-3 font-semibold text-[#374151]">
+                    {item.assessment_completed ? "Yes" : "No"}
+                  </td>
+                  <td className="border-b border-[#F1F5F9] px-3 py-3 text-[#374151]">
+                    {formatDateTime(item.assessment_completed_at)}
+                  </td>
+                  <td className="border-b border-[#F1F5F9] px-3 py-3 text-right tabular-nums font-semibold text-[#4A6FA5]">
+                    {formatCount(item.completed_assessment_count)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="mt-5 text-sm leading-6 text-[#6B7280]">
+          Registered user activity will appear after accounts are created.
+        </p>
+      )}
+    </section>
+  );
 }
 
 function MetricCard({ label, value, detail }) {
@@ -225,6 +391,17 @@ function AdminDashboard() {
     () => (Array.isArray(metrics?.top_pages) ? metrics.top_pages : []),
     [metrics],
   );
+  const funnelByPeriod = useMemo(
+    () => (Array.isArray(metrics?.funnel_by_period) ? metrics.funnel_by_period : []),
+    [metrics],
+  );
+  const recentRegisteredActivity = useMemo(
+    () =>
+      Array.isArray(metrics?.recent_registered_activity)
+        ? metrics.recent_registered_activity
+        : [],
+    [metrics],
+  );
 
   if (status === "loading") {
     return (
@@ -282,31 +459,33 @@ function AdminDashboard() {
     );
   }
 
-  const cards = [
+  const lifetimeCards = [
     ["Total registered users", metrics.total_registered_users],
-    ["New users, 7 days", metrics.new_users_last_7_days],
-    ["New users, 30 days", metrics.new_users_last_30_days],
     ["Unique page viewers", metrics.unique_page_viewers, "Distinct visitors across app pages"],
-    ["Page views, 7 days", metrics.page_views_last_7_days],
-    ["Page views, 30 days", metrics.page_views_last_30_days],
-    ["Unique viewers, 30 days", metrics.unique_page_viewers_last_30_days],
     ["Assessment users", metrics.unique_assessment_users, "Completed at least one assessment"],
-    ["Signup to assessment", formatPercent(metrics.signup_to_assessment_rate), "Registered users who completed an assessment"],
     ["Repeat assessment users", metrics.repeat_assessment_users, "Users with 2 or more completed assessments"],
     ["Avg assessments per user", formatAverage(metrics.average_assessments_per_assessment_user), "Among users who completed at least one assessment"],
     ["Total assessments", metrics.total_assessments],
-    ["Assessments, 7 days", metrics.assessments_last_7_days],
-    ["Assessments, 30 days", metrics.assessments_last_30_days],
     ["Premium active users", metrics.premium_active_users],
     ["Premium conversion", formatPercent(metrics.premium_conversion_rate), "Premium users among assessment users"],
     ["Free users", metrics.free_users],
     ["Journal users", metrics.journal_users, "Users with at least one journal entry"],
     ["Total journal entries", metrics.total_journal_entries, "Counts only; reflection content is never loaded"],
-    ["Journal entries, 7 days", metrics.journal_entries_last_7_days],
     ["Reminder opt-ins", metrics.reminder_opt_ins, "At least one reminder enabled"],
     ["Daily reminders", metrics.daily_reminder_opt_ins],
     ["Weekly reminders", metrics.weekly_reminder_opt_ins],
     ["Monthly reminders", metrics.monthly_reminder_opt_ins],
+  ];
+
+  const recentCards = [
+    ["New users, 7 days", metrics.new_users_last_7_days],
+    ["New users, 30 days", metrics.new_users_last_30_days],
+    ["Page views, 7 days", metrics.page_views_last_7_days],
+    ["Page views, 30 days", metrics.page_views_last_30_days],
+    ["Unique viewers, 30 days", metrics.unique_page_viewers_last_30_days],
+    ["Assessments, 7 days", metrics.assessments_last_7_days],
+    ["Assessments, 30 days", metrics.assessments_last_30_days],
+    ["Journal entries, 7 days", metrics.journal_entries_last_7_days],
   ];
 
   return (
@@ -330,10 +509,26 @@ function AdminDashboard() {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        {cards.map(([label, value, detail]) => (
+      <FunnelTable data={funnelByPeriod} />
+
+      <RecentRegisteredActivity data={recentRegisteredActivity} />
+
+      <section className="mt-6">
+        <p className="eyebrow mb-3">Recent Windows</p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {recentCards.map(([label, value, detail]) => (
           <MetricCard key={label} label={label} value={value} detail={detail} />
         ))}
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <p className="eyebrow mb-3">Lifetime Totals</p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {lifetimeCards.map(([label, value, detail]) => (
+          <MetricCard key={label} label={label} value={value} detail={detail} />
+        ))}
+        </div>
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-3">
